@@ -224,3 +224,9 @@ Suggested commit message conventions:
 - **Per-session:** Agents log lessons autonomously. You skim their end-of-session summaries.
 - **Monthly:** Trigger a full audit ("Neo, run your monthly review"). Agents promote/demote/consolidate. Commit the result.
 - **Quarterly:** Skim the whole roster. Retire agents you never use to `_archive/`. Add agents for gaps you keep hitting.
+
+---
+
+## License
+
+This repository is the personal work of Travis Uhle. It is **published publicly but not open source** — personal forks are allowed, commercial use is not, and redistribution under another name is not. See [LICENSE.md](LICENSE.md) for full terms. For anything beyond personal use, contact **travis@strixstudio.com**.
