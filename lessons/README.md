@@ -19,7 +19,7 @@ Lessons files are named `lessons/<resolved-user>--<agent>.md`. Agents resolve th
 2. **`whoami`** — if git config is blank, fall back to the system username and warn the user once that they should set `git config --global user.name`.
 3. **Refuse** — if even `whoami` fails (essentially impossible), agents do not log and tell the user.
 
-Spaces in names are preserved (`lessons/Travis Uhle--neo.md`). Filename matches the resolved string exactly.
+Spaces in names are preserved exactly as they appear in `git config user.name` (e.g. `lessons/Jane Smith--neo.md`). Filename matches the resolved string exactly.
 
 ## Schema
 
@@ -43,8 +43,8 @@ One file per (agent, user) pair — see the naming convention below.
 
 Lessons are stored **per (user, agent) pair**: `lessons/<resolved-user>--<agent>.md`. Examples:
 
-- `lessons/Travis Uhle--neo.md`
-- `lessons/Travis Uhle--morpheus.md`
+- `lessons/Travis--neo.md`
+- `lessons/Travis--morpheus.md`
 
 Do not use a shared `lessons/<user>.md` file. Agent-specific lesson files prevent role confusion and keep Neo's coding lessons separate from Morpheus's design lessons.
 

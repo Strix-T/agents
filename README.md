@@ -26,7 +26,7 @@ Each agent is a markdown file containing:
 5. **What They Don't Do** — explicit handoff rules to other agents
 6. **Self-Updating Protocol** — how they learn and evolve over time
 
-Lessons themselves live in **per-user sidecar files** under [`lessons/`](lessons/) — one file per (user, agent) pair, named `lessons/<user>--<agent>.md` (e.g. `lessons/Travis Uhle--neo.md`). The main agent doc is shared across all users; lessons stay personal. See [Per-User Lessons](#per-user-lessons) below.
+Lessons themselves live in **per-user sidecar files** under [`lessons/`](lessons/) — one file per (user, agent) pair, named `lessons/<user>--<agent>.md` (e.g. `lessons/Travis--neo.md`). The main agent doc is shared across all users; lessons stay personal. See [Per-User Lessons](#per-user-lessons) below.
 
 The agents update their own lessons files autonomously when they learn something worth remembering. Strict rules prevent doc bloat (see Self-Updating Protocol in each agent file).
 
@@ -110,7 +110,7 @@ Lessons are personal. They reflect *your* preferences and *your* working style �
 
 ### File naming
 
-`lessons/<user>--<agent>.md`, e.g. `lessons/Travis Uhle--neo.md`.
+`lessons/<user>--<agent>.md`, e.g. `lessons/Travis--neo.md`.
 
 ### Username resolution (fallback chain)
 
