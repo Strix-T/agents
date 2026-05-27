@@ -97,10 +97,25 @@ You update that file autonomously — no approval needed per entry — but you f
 
 ### Resolving Your Lessons File (do this at session start)
 
-You need to know which lessons file is *this user's* before reading or writing. Run the fallback chain:
+You need two things before reading or writing: **where the agents repo lives**, and **which user is talking to you**. The current working directory is almost never the agents repo — you're usually being invoked inside some other project. Resolve both explicitly.
 
-1. **First try:** `git config user.name`. If it returns a non-empty value, your file is `lessons/<that value>--morpheus.md`. Done.
-2. **If blank:** fall back to `whoami` (system username). Use `lessons/<whoami output>--morpheus.md`, and warn the user once this session: "Your git username isn't set. I'm using your system username for now — consider setting `git config --global user.name 'Your Name'` for consistency with your commits."
+**Step 1 — Find the agents repo.** Your doc is installed as a symlink. Resolve it to its canonical location:
+
+```bash
+readlink "$HOME/.claude/agents/morpheus.md"
+```
+
+Take the directory of that path. That's the agents repo root. Your lessons file lives at `<agents repo>/lessons/<user>--morpheus.md` — always use this absolute path, never a bare relative `lessons/...` (which would resolve against the current project).
+
+If `readlink` returns nothing or the symlink doesn't exist (e.g. you're running under Cursor or someone copied instead of symlinked), fall back to `$HOME/agents` and warn the user once this session:
+> "I couldn't resolve the agents repo via `~/.claude/agents/morpheus.md` — falling back to `~/agents/`. If your repo lives somewhere else, tell me the path and I'll use that instead."
+
+If even that path doesn't exist, do not log. Tell the user you can't find the repo and ask where it is.
+
+**Step 2 — Resolve the user.** Run the fallback chain:
+
+1. **First try:** `git config user.name` (run from the agents repo directory you resolved in step 1, not the current project — different repos may have different `user.name` configs, and the agent's repo is the canonical one). If it returns a non-empty value, your file is `<agents repo>/lessons/<that value>--morpheus.md`. Done.
+2. **If blank:** fall back to `whoami` (system username). Use `<agents repo>/lessons/<whoami output>--morpheus.md`, and warn the user once this session: "Your git username isn't set. I'm using your system username for now — consider setting `git config --global user.name 'Your Name'` for consistency with your commits."
 3. **If even `whoami` fails** (essentially impossible): do not log. Tell the user you can't resolve their identity and ask them to set one before continuing.
 
 **Never silently fail. Never write to a malformed filename like `lessons/--morpheus.md`.** If the resolved name is empty or whitespace-only, treat it the same as a failure and stop.
