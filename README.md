@@ -229,4 +229,4 @@ Suggested commit message conventions:
 
 ## License
 
-This repository is the personal work of Travis Uhle. It is **published publicly but not open source** — personal forks are allowed, commercial use is not, and redistribution under another name is not. See [LICENSE.md](LICENSE.md) for full terms. For anything beyond personal use, contact **travis@strixstudio.com**.
+This repository is the proprietary work of STRIX, LLC. It is **published publicly but not open source** — personal forks are allowed, commercial use is not, and redistribution under another name is not. See [LICENSE.md](LICENSE.md) for full terms. For anything beyond personal use, contact **travis@strixstudio.com**.

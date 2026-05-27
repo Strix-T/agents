@@ -1,8 +1,8 @@
 # License
 
-Copyright (c) 2026 Travis Uhle. All rights reserved.
+Copyright (c) 2026 STRIX, LLC. All rights reserved.
 
-This repository — including the agent definitions, prompts, install scripts, templates, and documentation contained within it — is the personal work of Travis Uhle. It is published publicly so that named collaborators and curious observers can read and use it, but it is **not open source** in the conventional sense and the permissions granted below are deliberately narrow.
+This repository — including the agent definitions, prompts, install scripts, templates, and documentation contained within it — is the proprietary work of STRIX, LLC. It is published publicly so that named collaborators and curious observers can read and use it, but it is **not open source** in the conventional sense and the permissions granted below are deliberately narrow.
 
 ## What you may do
 
@@ -28,6 +28,6 @@ This work is provided "as is", without warranty of any kind, express or implied.
 
 ## Requests for other use
 
-For any use that falls outside the narrow permissions above — including commercial licensing, embedding in a product, or redistribution — contact Travis Uhle at **travis@strixstudio.com** to discuss terms in writing.
+For any use that falls outside the narrow permissions above — including commercial licensing, embedding in a product, or redistribution — contact STRIX, LLC at **travis@strixstudio.com** to discuss terms in writing.
 
 Silence is not consent. If you're unsure whether your intended use is permitted, ask first.
