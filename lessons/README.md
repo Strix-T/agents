@@ -13,13 +13,13 @@ Per-user sidecar files solve both: the main agent doc (identity, principles, too
 
 ## File naming
 
-Files are named after the user's resolved identity. Agents resolve the name like this:
+Lessons files are named `lessons/<resolved-user>--<agent>.md`. Agents resolve the user portion like this:
 
-1. **`git config user.name`** — if it returns a non-empty value, use `lessons/<that name>.md`.
+1. **`git config user.name`** — if it returns a non-empty value, use it as the `<resolved-user>` part.
 2. **`whoami`** — if git config is blank, fall back to the system username and warn the user once that they should set `git config --global user.name`.
 3. **Refuse** — if even `whoami` fails (essentially impossible), agents do not log and tell the user.
 
-Spaces in names are preserved (`lessons/Travis Uhle.md`). Filename matches the resolved string exactly.
+Spaces in names are preserved (`lessons/Travis Uhle--neo.md`). Filename matches the resolved string exactly.
 
 ## Schema
 
@@ -28,7 +28,7 @@ Each lessons file looks like this:
 ```markdown
 # Lessons — <agent name> (for <user>)
 
-<!-- Max 15 entries. See the Self-Updating Protocol in <agent>.md. -->
+<!-- Max 15 entries. See the Self-Updating Protocol in agents/<agent>.md. -->
 
 YYYY-MM-DD — Lesson, one or two sentences max.
   Why log: One sentence — why future-<agent> wouldn't figure this out on their own.
@@ -37,11 +37,16 @@ YYYY-MM-DD — ...
   Why log: ...
 ```
 
-One file per (agent, user) pair. So Travis using Neo gets `lessons/Travis Uhle.md` scoped to Neo (the agent reads only its own entries — see the per-agent file convention below).
+One file per (agent, user) pair — see the naming convention below.
 
-## Per-agent vs. per-user
+## Per-agent, per-user
 
-The simplest model is **one file per user, all agents share it** — but that conflates lessons across roles. A better split: **one file per agent per user**, named `lessons/<user>--<agent>.md` (e.g. `lessons/Travis Uhle--neo.md`).
+Lessons are stored **per (user, agent) pair**: `lessons/<resolved-user>--<agent>.md`. Examples:
+
+- `lessons/Travis Uhle--neo.md`
+- `lessons/Travis Uhle--morpheus.md`
+
+Do not use a shared `lessons/<user>.md` file. Agent-specific lesson files prevent role confusion and keep Neo's coding lessons separate from Morpheus's design lessons.
 
 Agents follow this convention: when resolving their lessons file, they look for `lessons/<resolved name>--<agent>.md`. If that file doesn't exist, they create it silently on the first lesson and announce: "Creating your personal lessons file at `lessons/<name>--<agent>.md` since this looks like your first session."
 

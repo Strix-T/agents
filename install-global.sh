@@ -1,46 +1,54 @@
 #!/usr/bin/env bash
 # install-global.sh
-# Symlinks all agent docs in this repo into ~/.claude/agents/ for Claude Code.
+# Symlinks all Claude Code agent docs from ./agents into ~/.claude/agents/.
 # Run from the repo root: ./install-global.sh
 
-set -e
+set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AGENTS_DIR="$REPO_DIR/agents"
 CLAUDE_AGENTS_DIR="$HOME/.claude/agents"
+
+if [ ! -d "$AGENTS_DIR" ]; then
+  echo "Error: agents directory not found: $AGENTS_DIR"
+  exit 1
+fi
 
 mkdir -p "$CLAUDE_AGENTS_DIR"
 
-echo "Installing agents from: $REPO_DIR"
+count=0
+
+echo "Installing Claude Code agents from: $AGENTS_DIR"
 echo "Into: $CLAUDE_AGENTS_DIR"
 echo ""
 
-# Symlink every top-level .md file except README
-for agent_file in "$REPO_DIR"/*.md; do
-  filename=$(basename "$agent_file")
+for agent_file in "$AGENTS_DIR"/*.md; do
+  [ -e "$agent_file" ] || continue
 
-  # Skip the README
-  if [ "$filename" = "README.md" ]; then
+  filename="$(basename "$agent_file")"
+  target="$CLAUDE_AGENTS_DIR/$filename"
+
+  # Guard: only install files that start with YAML frontmatter.
+  if [ "$(head -n 1 "$agent_file")" != "---" ]; then
+    echo "  Skipping $filename: missing YAML frontmatter"
     continue
   fi
 
-  target="$CLAUDE_AGENTS_DIR/$filename"
-
-  # If a file already exists at the target, back it up
   if [ -e "$target" ] && [ ! -L "$target" ]; then
-    echo "  Backing up existing: $target -> $target.backup"
-    mv "$target" "$target.backup"
+    backup="$target.backup.$(date +%Y%m%d%H%M%S)"
+    echo "  Backing up existing: $target -> $backup"
+    mv "$target" "$backup"
   fi
 
-  # Remove existing symlink before creating a new one
   if [ -L "$target" ]; then
     rm "$target"
   fi
 
   ln -s "$agent_file" "$target"
   echo "  Linked: $filename"
+  count=$((count + 1))
 done
 
 echo ""
-echo "Done. Agents are now globally available in Claude Code."
-echo ""
-echo "For Cursor, run install-cursor.sh from inside each project that needs them."
+echo "Done. Installed $count Claude Code agent(s)."
+echo "Run /agents in Claude Code to verify they appear."

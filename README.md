@@ -36,27 +36,39 @@ The agents update their own lessons files autonomously when they learn something
 
 This repo is the canonical source of truth. The actual files used by Claude Code and Cursor live in tool-specific locations. Pick one of the two strategies below.
 
-### Option A: Symlinks (recommended)
+The canonical agent docs live in [`agents/`](agents/). Both install scripts read from there, so Claude Code and Cursor share the same source of truth — one doc, two install targets. Self-updates from either tool land in the same file.
 
-Symlinks mean edits sync instantly across all projects — you only ever edit the file here in this repo.
+### Claude Code (global, all projects)
 
-**Claude Code (global, all projects):**
 ```bash
-# From the repo root
-ln -s "$(pwd)/neo.md" ~/.claude/agents/neo.md
-ln -s "$(pwd)/morpheus.md" ~/.claude/agents/morpheus.md
+./install-global.sh
 ```
 
-**Cursor (per-project, since Cursor has no global rules folder):**
+This symlinks every doc in `agents/` into `~/.claude/agents/`. Re-run after adding a new agent (it's idempotent).
+
+Equivalent manual symlink:
 ```bash
-# Run inside each project where you want the agents available
-ln -s ~/path/to/agents/neo.md .cursor/rules/neo.mdc
-ln -s ~/path/to/agents/morpheus.md .cursor/rules/morpheus.mdc
+ln -s "$(pwd)/agents/neo.md" ~/.claude/agents/neo.md
+ln -s "$(pwd)/agents/morpheus.md" ~/.claude/agents/morpheus.md
 ```
 
-### Option B: Copy + sync script
+### Cursor (per-project)
 
-If symlinks give you trouble (Windows, some sync tools), copy the files instead and use a script to re-sync when this repo updates. See [`scripts/sync.sh`](#) (create as needed).
+Cursor has no global rules folder, so install once per project:
+```bash
+# Run from inside the project where you want the agents available
+/path/to/agents/install-cursor.sh
+```
+
+This symlinks `agents/*.md` into `<project>/.cursor/rules/*.mdc`.
+
+Equivalent manual symlink:
+```bash
+ln -s ~/path/to/agents/agents/neo.md .cursor/rules/neo.mdc
+ln -s ~/path/to/agents/agents/morpheus.md .cursor/rules/morpheus.mdc
+```
+
+Either install script refuses files without YAML frontmatter, backs up existing non-symlink targets with a timestamp before overwriting, and prints a count of what it installed.
 
 ---
 

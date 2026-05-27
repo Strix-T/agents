@@ -1,53 +1,65 @@
 #!/usr/bin/env bash
 # install-cursor.sh
-# Symlinks all agent docs from this repo into the current project's .cursor/rules/ folder.
+# Symlinks the canonical agent docs from ./agents into the current project's
+# .cursor/rules/ folder as .mdc files. This keeps Cursor and Claude Code on
+# the same source of truth — one doc, two install targets.
+#
 # Run from inside the project where you want the agents available:
 #   /path/to/agents-repo/install-cursor.sh
 
-set -e
+set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(pwd)"
+AGENTS_DIR="$REPO_DIR/agents"
 CURSOR_RULES_DIR="$PROJECT_DIR/.cursor/rules"
 
-# Refuse to install into the agents repo itself
 if [ "$PROJECT_DIR" = "$REPO_DIR" ]; then
   echo "Error: don't run install-cursor.sh from inside the agents repo itself."
   echo "Run it from inside a project where you want the agents available."
   exit 1
 fi
 
+if [ ! -d "$AGENTS_DIR" ]; then
+  echo "Error: agents directory not found: $AGENTS_DIR"
+  exit 1
+fi
+
 mkdir -p "$CURSOR_RULES_DIR"
 
-echo "Installing agents from: $REPO_DIR"
+count=0
+
+echo "Installing agents from: $AGENTS_DIR"
 echo "Into project: $PROJECT_DIR"
 echo ""
 
-# Symlink every top-level .md file except README, with .mdc extension for Cursor
-for agent_file in "$REPO_DIR"/*.md; do
-  filename=$(basename "$agent_file" .md)
+for agent_file in "$AGENTS_DIR"/*.md; do
+  [ -e "$agent_file" ] || continue
 
-  # Skip the README
-  if [ "$filename" = "README" ]; then
+  base="$(basename "$agent_file" .md)"
+  target="$CURSOR_RULES_DIR/$base.mdc"
+
+  # Guard: only install files that start with YAML frontmatter.
+  if [ "$(head -n 1 "$agent_file")" != "---" ]; then
+    echo "  Skipping $base.md: missing YAML frontmatter"
     continue
   fi
 
-  target="$CURSOR_RULES_DIR/$filename.mdc"
-
-  # If a file already exists at the target, back it up
   if [ -e "$target" ] && [ ! -L "$target" ]; then
-    echo "  Backing up existing: $target -> $target.backup"
-    mv "$target" "$target.backup"
+    backup="$target.backup.$(date +%Y%m%d%H%M%S)"
+    echo "  Backing up existing: $target -> $backup"
+    mv "$target" "$backup"
   fi
 
-  # Remove existing symlink before creating a new one
   if [ -L "$target" ]; then
     rm "$target"
   fi
 
   ln -s "$agent_file" "$target"
-  echo "  Linked: $filename.mdc"
+  echo "  Linked: $base.mdc"
+  count=$((count + 1))
 done
 
 echo ""
-echo "Done. Agents are now available in this project for Cursor."
+echo "Done. Installed $count Cursor rule(s)."
+echo "Open Cursor settings/rules to verify they appear."

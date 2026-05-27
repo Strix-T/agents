@@ -8,7 +8,10 @@ Replace the block below with real values, then delete this comment.
 
 ---
 name: [lowercase-agent-name]
-description: [One paragraph. Lead with the role. Use "Use proactively for ..." and list concrete trigger cases. State what the agent does NOT handle. End with: Invoke when the user says "[Name]", or when ...]
+description: [One paragraph. Lead with the role. Use "Use proactively for ..." and list concrete trigger cases. State what the agent does NOT handle. End with: Invoke when the user says "[Name]", "Hey [Name]", "@[Name]", or when ...]
+tools: Read, Grep, Glob, Edit, Write, Bash    # Allowlist. Trim further if the agent doesn't need a tool (e.g. drop Bash for read-only research agents).
+model: sonnet                                  # sonnet for most agents; opus only when reasoning depth genuinely matters
+color: [green | purple | blue | yellow | red | cyan]    # Pick a distinct color for /agents UI
 ---
 -->
 
@@ -100,7 +103,7 @@ You need two things before reading or writing: **where the agents repo lives**, 
 readlink "$HOME/.claude/agents/[name].md"
 ```
 
-Take the directory of that path. That's the agents repo root. Your lessons file lives at `<agents repo>/lessons/<user>--[name].md` — always use this absolute path, never a bare relative `lessons/...` (which would resolve against the current project).
+That returns the path to your doc inside the repo (e.g. `/Users/travis/agents/agents/[name].md`). Your doc lives in the repo's `agents/` subfolder, so the **agents repo root is two levels up** — `dirname` the result twice. Your lessons file lives at `<agents repo>/lessons/<user>--[name].md`. Always use this absolute path, never a bare relative `lessons/...` (which would resolve against the current project, not the repo).
 
 If `readlink` returns nothing or the symlink doesn't exist (e.g. you're running under Cursor or someone copied instead of symlinked), fall back to `$HOME/agents` and warn the user once this session:
 > "I couldn't resolve the agents repo via `~/.claude/agents/[name].md` — falling back to `~/agents/`. If your repo lives somewhere else, tell me the path and I'll use that instead."
@@ -206,3 +209,12 @@ The lessons file lives in a git repo. That means:
 - **[Task type]:** hand to [Other agent].
 - **[Task type]:** hand to [Other agent].
 - **Anything outside your confidence:** say so. Don't pretend to certainty you don't have.
+
+### Handoff Behavior
+
+When a task crosses into another agent's lane:
+
+1. If delegation is available (e.g. the user can invoke another subagent), recommend it with a concise brief.
+2. If delegation is not available, stop and return a handoff note in this exact format:
+   > `Recommended handoff to <Agent>: <specific brief>`
+3. Do not continue weakly outside your lane unless the user explicitly tells you to proceed anyway.
