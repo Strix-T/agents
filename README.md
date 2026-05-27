@@ -25,9 +25,10 @@ Each agent is a markdown file containing:
 4. **How They Work** — process and communication style
 5. **What They Don't Do** — explicit handoff rules to other agents
 6. **Self-Updating Protocol** — how they learn and evolve over time
-7. **Lessons Learned** — append-only log, capped at 15 entries
 
-The agents update their own docs autonomously when they learn something worth remembering. Strict rules prevent doc bloat (see Self-Updating Protocol in each file).
+Lessons themselves live in **per-user sidecar files** under [`lessons/`](lessons/) — one file per (user, agent) pair, named `lessons/<user>--<agent>.md` (e.g. `lessons/Travis Uhle--neo.md`). The main agent doc is shared across all users; lessons stay personal. See [Per-User Lessons](#per-user-lessons) below.
+
+The agents update their own lessons files autonomously when they learn something worth remembering. Strict rules prevent doc bloat (see Self-Updating Protocol in each agent file).
 
 ---
 
@@ -78,16 +79,48 @@ The global agents read these and treat them as overrides. This keeps the global 
 
 ## Self-Updating Rules (Summary)
 
-Each agent maintains its own Lessons Learned log. The rules:
+Each agent maintains a personal Lessons Learned file for the current user. The rules:
 
 - **Autonomous updates, no per-entry approval** — agents write directly
 - **Mandatory pre-flight check** — re-read the whole doc before any update; flag contradictions
-- **15-entry hard cap, forever** — when full, must consolidate, promote to Principles, demote (delete), or decline
+- **15-entry hard cap per user, forever** — when full, must consolidate, propose promotion to Principles, demote (delete), or decline
 - **"Why log" justification required** — if the agent can't explain why future-self wouldn't figure it out unprompted, don't log it
 - **End-of-session summary** — one line on what changed
-- **Monthly audit** — promote recurring lessons, prune stale ones
+- **Monthly audit** — propose promoting recurring lessons to shared Principles, prune stale ones
 
 Full protocol lives inside each agent's doc.
+
+---
+
+## Per-User Lessons
+
+Lessons are personal. They reflect *your* preferences and *your* working style — they're not portable to other users. To prevent merge conflicts and preference bleed across users sharing this repo, each agent writes to a per-user sidecar file under [`lessons/`](lessons/).
+
+### File naming
+
+`lessons/<user>--<agent>.md`, e.g. `lessons/Travis Uhle--neo.md`.
+
+### Username resolution (fallback chain)
+
+When an agent starts a session, it resolves which lessons file is yours:
+
+1. **`git config user.name`** — if non-empty, used as `<user>`.
+2. **`whoami`** — fallback if git config is blank. Agent warns you once and suggests setting `git config --global user.name`.
+3. **Refuse** — if even `whoami` fails (essentially impossible), agent does not log and tells you.
+
+Agents never write to a malformed filename like `lessons/--neo.md`. If the resolved name is empty, they stop and surface the problem.
+
+### First run
+
+When you're a new user and `lessons/<your name>--<agent>.md` doesn't exist yet, the agent creates it on the first lesson and announces it once. No silent file creation.
+
+### Username changes
+
+If you change your `git config user.name` mid-stream and an old lessons file exists for the previous name, the agent notices, tells you, and asks whether to rename. It does not silently orphan or merge.
+
+### Git policy
+
+The `lessons/` folder **is committed**. Per-user filenames mean co-worker forks never collide. If you'd rather keep lessons local-only on your machine, add `lessons/` to `.gitignore` in your fork — agents don't care either way.
 
 ---
 
@@ -95,21 +128,42 @@ Full protocol lives inside each agent's doc.
 
 When an agent learns something during work:
 
-- **If the lesson is about *you* (your preferences, your style, your workflow):** log it in the global agent doc (here).
+- **If the lesson is about *you* (your preferences, your style, your workflow):** log it in the user's lessons file in this repo.
 - **If the lesson is about *the project* (codebase conventions, domain quirks, project-specific gotchas):** log it in that project's local rules file instead.
 
-Agents should ask themselves: "Would this lesson apply if I were working in a totally different project tomorrow?" If yes → global. If no → project-local.
+Agents should ask themselves: "Would this lesson apply if I were working in a totally different project tomorrow?" If yes → user lessons file. If no → project-local.
 
 ---
 
 ## Adding a New Agent
 
-1. Copy `_templates/agent-template.md` to `<name>.md` in the repo root.
+1. Copy `agent-template.md` to `<name>.md` in the repo root (lowercase agent name).
 2. Fill in Identity, Principles, Toolkit, How They Work, What They Don't Do, Handoff Rules.
-3. Leave the Self-Updating Protocol section as-is — it's standardized across all agents.
+3. Leave the Self-Updating Protocol section as-is — it's standardized across all agents. Replace each `[name]` placeholder with the lowercase agent name and each `[Name]` with the capitalized one.
 4. Update the Roster table in this README.
 5. Install via symlink (see [Installation](#installation)).
 6. Commit.
+
+---
+
+## Sharing With a Co-Worker
+
+These agents are meant to be forkable. The recommended workflow for someone else picking them up:
+
+```bash
+# Fork Strix-T/agents on GitHub, then:
+git clone https://github.com/<their-user>/agents.git
+cd agents
+git remote add upstream https://github.com/Strix-T/agents.git
+
+# Pull structural updates from upstream when wanted:
+git fetch upstream
+git merge upstream/main          # lessons files stay isolated; no conflicts
+
+./install-global.sh              # pick up any new agents
+```
+
+Why this works without conflicts: the main agent docs (identity, principles, toolkit) are shared, so they merge cleanly from upstream. Lessons live in `lessons/<their name>--<agent>.md`, so each user only ever edits their own file. Pulling upstream never touches their lessons; pushing changes never touches the original's.
 
 ---
 
