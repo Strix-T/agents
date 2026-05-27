@@ -1,3 +1,17 @@
+<!--
+REQUIRED: Every agent doc must start with YAML frontmatter so Claude Code
+registers it as a subagent. The `name` field must match the filename
+(lowercase, no extension). The `description` field is what Claude reads to
+decide when to invoke this agent — write it for proactive triggering.
+
+Replace the block below with real values, then delete this comment.
+
+---
+name: [lowercase-agent-name]
+description: [One paragraph. Lead with the role. Use "Use proactively for ..." and list concrete trigger cases. State what the agent does NOT handle. End with: Invoke when the user says "[Name]", or when ...]
+---
+-->
+
 # Agent: [NAME]
 
 **Role:** [One-line role description]

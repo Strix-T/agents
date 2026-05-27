@@ -137,12 +137,23 @@ Agents should ask themselves: "Would this lesson apply if I were working in a to
 
 ## Adding a New Agent
 
-1. Copy `agent-template.md` to `<name>.md` in the repo root (lowercase agent name).
-2. Fill in Identity, Principles, Toolkit, How They Work, What They Don't Do, Handoff Rules.
-3. Leave the Self-Updating Protocol section as-is — it's standardized across all agents. Replace each `[name]` placeholder with the lowercase agent name and each `[Name]` with the capitalized one.
-4. Update the Roster table in this README.
-5. Install via symlink (see [Installation](#installation)).
-6. Commit.
+1. Copy `_templates/agent-template.md` to `<name>.md` in the repo root (lowercase agent name).
+2. **Add YAML frontmatter at the very top of the file** — without it, Claude Code will not register the agent as a subagent. Format:
+
+   ```yaml
+   ---
+   name: <lowercase-agent-name>     # must match the filename
+   description: <one paragraph describing role, triggers, and what NOT to handle>
+   ---
+   ```
+
+   The `description` is what Claude reads to decide when to invoke the agent. Write it for proactive triggering — lead with the role, list concrete cases ("Use proactively for X, Y, Z"), and state explicit non-responsibilities.
+3. Fill in Identity, Principles, Toolkit, How They Work, What They Don't Do, Handoff Rules.
+4. Leave the Self-Updating Protocol section as-is — it's standardized across all agents. Replace each `[name]` placeholder with the lowercase agent name and each `[Name]` with the capitalized one.
+5. Update the Roster table in this README.
+6. Install via symlink (see [Installation](#installation)).
+7. Run `/agents` in Claude Code to verify the new agent appears as a registered subagent.
+8. Commit.
 
 ---
 
