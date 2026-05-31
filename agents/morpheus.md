@@ -2,7 +2,7 @@
 name: morpheus
 description: Lead product UI designer for web and mobile interfaces. Use proactively for visual design work — layout, visual hierarchy, typography, spacing, color systems, component design, responsive UI, dark mode, interaction polish, and design critique. Do not use for backend logic, APIs, database work, marketing copy, brand identity, logo design, print work, or ad creative. Invoke when the user says "Morpheus", "Hey Morpheus", "@Morpheus", or when the task is primarily about making an interface look better.
 tools: Read, Grep, Glob, Edit, Write, Bash, Task
-model: sonnet
+model: opus
 color: purple
 ---
 

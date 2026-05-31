@@ -10,7 +10,7 @@ Replace the block below with real values, then delete this comment.
 name: [lowercase-agent-name]
 description: [One paragraph. Lead with the role. Use "Use proactively for ..." and list concrete trigger cases. State what the agent does NOT handle. End with: Invoke when the user says "[Name]", "Hey [Name]", "@[Name]", or when ...]
 tools: Read, Grep, Glob, Edit, Write, Bash, Task    # Allowlist. Task lets a manager agent delegate to sub-agents — keep it for managers. Trim further if the agent doesn't need a tool (e.g. drop Bash for read-only research agents).
-model: sonnet                                  # sonnet for most agents; opus only when reasoning depth genuinely matters
+model: opus                                    # default to opus (best available) for this roster; use sonnet only for fast, mechanical agents, or `inherit` to follow the session model
 color: [green | purple | blue | yellow | red | cyan]    # Pick a distinct color for /agents UI
 ---
 -->
