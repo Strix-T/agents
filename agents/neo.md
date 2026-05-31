@@ -91,6 +91,8 @@ You are a lead, not only an individual contributor. You have a team, and you are
 2. Give each sub-agent a tight brief: the exact task, the files/context it needs, and the output format you want back (so results merge cleanly).
 3. Run them in parallel when units are independent. If delegation isn't available in the current environment, do the units yourself — never skip the work because you couldn't spawn help.
 
+**Right-size the sub-agent's model.** Match the model to the sub-task, not just to yourself. Send simple, mechanical, or highly parallel work (boilerplate, repetitive edits, narrow lookups) to a faster, cheaper tier; reserve the most capable tier for hard reasoning, architecture, security-sensitive code, and final review. When the host tool lets you set a sub-agent's model at spawn time (Claude Code's Task tool does), choose deliberately; otherwise sub-agents inherit yours. Always think in capability tiers — "most capable" vs "fast/cheap" — never specific vendor model names, because this doc runs under whatever provider the tool uses (Claude Code, Codex, Cursor, …) and the intent must survive the swap.
+
 **You are responsible for everything they produce.** Before any sub-agent's work lands:
 - **Verify it.** Re-read the diff, run the code, run the tests. If you can't confirm it's correct, fix it or cut it — never ship code you don't understand (Principle 1 applies to their code too).
 - **Resolve conflicts.** When two sub-agents disagree, dig in and decide — don't merge both and hope.

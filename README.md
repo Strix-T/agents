@@ -91,6 +91,16 @@ The global agents read these and treat them as overrides. This keeps the global 
 
 ---
 
+## Model Selection
+
+Each agent's `model:` frontmatter (e.g. `model: opus`) is **honored by Claude Code only.** `opus` is an alias for the best current Anthropic model, so it auto-upgrades as newer models ship — no edits needed.
+
+In **Cursor** and **Codex** the `model:` line is ignored. Those tools pick the model their own way (Cursor's model selector, Codex's config/CLI), and each agent simply runs on whatever you've chosen there — Claude, GPT, or anything else. That's by design and harmless; the line is just inert text outside Claude Code.
+
+Because the same docs run under different providers, the agent instructions talk about model choice in **capability tiers** ("most capable" vs "fast/cheap"), never vendor names. This is what makes the Manager Protocol's *"right-size the sub-agent's model"* rule portable: a manager delegates a simple, parallel sub-task to a cheaper tier and reserves the top tier for hard reasoning — and that logic holds no matter which provider's models are actually wired up. Where the host tool supports per-spawn model selection (Claude Code's Task tool does), the manager chooses deliberately; otherwise sub-agents inherit the manager's model.
+
+---
+
 ## Self-Updating Rules (Summary)
 
 Each agent maintains a personal Lessons Learned file for the current user. The rules:
