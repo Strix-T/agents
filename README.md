@@ -10,8 +10,9 @@ A personal roster of named AI agents, each with a specialized role and a self-ma
 |---|---|---|
 | **Neo** | Senior Full-Stack Programmer | "Neo, ..." |
 | **Morpheus** | Lead Graphic Designer (Product UI) | "Morpheus, ..." |
+| **Hermes** | Head of Marketing & Growth | "Hermes, ..." |
 
-*Future agents will be added here as the team grows. Naming follows the Matrix theme — see [Naming Convention](#naming-convention) below.*
+*Future agents will be added here as the team grows. Naming mostly follows the Matrix theme, with room for fitting names from Greek mythology and sci-fi — see [Naming Convention](#naming-convention) below.*
 
 ---
 
@@ -23,8 +24,9 @@ Each agent is a markdown file containing:
 2. **Core Principles** — non-negotiable working rules
 3. **Default Toolkit / Stack** — preferred tools and conventions
 4. **How They Work** — process and communication style
-5. **What They Don't Do** — explicit handoff rules to other agents
-6. **Self-Updating Protocol** — how they learn and evolve over time
+5. **Manager Protocol** — how they delegate to sub-agents and stay accountable for the result
+6. **What They Don't Do** — explicit handoff rules to other agents
+7. **Self-Updating Protocol** — how they learn and evolve over time
 
 Lessons themselves live in **per-user sidecar files** under [`lessons/`](lessons/) — one file per (user, agent) pair, named `lessons/<user>--<agent>.md` (e.g. `lessons/Travis--neo.md`). The main agent doc is shared across all users; lessons stay personal. See [Per-User Lessons](#per-user-lessons) below.
 
@@ -132,7 +134,7 @@ If you change your `git config user.name` mid-stream and an old lessons file exi
 
 ### Git policy
 
-The `lessons/` folder **is committed**. Per-user filenames mean co-worker forks never collide. If you'd rather keep lessons local-only on your machine, add `lessons/` to `.gitignore` in your fork — agents don't care either way.
+Per-user lesson files (`lessons/<user>--<agent>.md`) are **git-ignored** (see [`.gitignore`](.gitignore)) — they stay local to your machine and are never pushed, because they accumulate project and business specifics and this repo is public. Only the shared [`lessons/README.md`](lessons/README.md) (the format guide) is tracked. If you keep your work in a *private* fork and want lessons version-controlled, delete the `lessons/*--*.md` line from `.gitignore`; per-user filenames mean co-worker forks won't collide either way.
 
 ---
 
@@ -161,7 +163,7 @@ Agents should ask themselves: "Would this lesson apply if I were working in a to
 
    The `description` is what Claude reads to decide when to invoke the agent. Write it for proactive triggering — lead with the role, list concrete cases ("Use proactively for X, Y, Z"), and state explicit non-responsibilities.
 3. Fill in Identity, Principles, Toolkit, How They Work, What They Don't Do, Handoff Rules.
-4. Leave the Self-Updating Protocol section as-is — it's standardized across all agents. Replace each `[name]` placeholder with the lowercase agent name and each `[Name]` with the capitalized one.
+4. Leave the Self-Updating Protocol and Manager Protocol sections as-is — they're standardized across all agents (lightly customize the Manager Protocol's delegate/verify examples to the role). Replace each `[name]` placeholder with the lowercase agent name and each `[Name]` with the capitalized one.
 5. Update the Roster table in this README.
 6. Install via symlink (see [Installation](#installation)).
 7. Run `/agents` in Claude Code to verify the new agent appears as a registered subagent.
@@ -192,7 +194,7 @@ Why this works without conflicts: the main agent docs (identity, principles, too
 
 ## Naming Convention
 
-The roster follows a **Matrix** theme. Reserved future slots:
+The roster mostly follows a **Matrix** theme, but a name from **Greek mythology or sci-fi** is welcome when it fits the role better than any Matrix character would — e.g. **Hermes** (god of commerce, messengers, and persuasion) for marketing. Reserved future Matrix slots:
 
 | Name | Likely Role |
 |---|---|

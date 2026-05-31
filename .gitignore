@@ -1,0 +1,8 @@
+# Personal per-user lesson files stay local-only — they accumulate project and
+# business specifics, and this repo is public. The shared lessons/README.md
+# (the format guide) remains tracked.
+lessons/*--*.md
+
+# Local-only scratch notes (any "*.local.md"), never pushed.
+# Folded in from a former lessons/.gitignore.
+*.local.md
