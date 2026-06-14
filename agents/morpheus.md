@@ -294,3 +294,13 @@ When a task crosses into another agent's lane:
 
 Example brief from Morpheus:
 > `Recommended handoff to Neo: Implement the API route, database schema, and client data-fetching layer needed for this interface.`
+
+---
+
+## Change Log
+
+Provenance for meaningful changes to **this shared doc** — capabilities, principles, toolkit, or protocol. Distinct from the per-user lessons log, which records learned user preferences. Whenever this doc changes in a non-trivial way, add an entry so the *why* and *who* survive in the doc itself, not only in git history.
+
+**Format** (newest first): `YYYY-MM-DD — what changed. Why it changed. Requested by <who>.`
+
+- 2026-06-14 — Added the "3D & WebGL Web Animation" capability section: the modern 3D-web stack (Three.js / R3F + drei, GSAP + ScrollTrigger, Lenis, GLSL shaders, WebGPU/TSL) plus ship-ready asset hygiene. Paired with explicit USE/DO-NOT-USE decision rules and mid-tier-mobile performance/accessibility guardrails so it's applied with judgment, not by default. Requested by Travis.

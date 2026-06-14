@@ -249,3 +249,13 @@ When a task crosses into another agent's lane:
 
 Example brief from Neo:
 > `Recommended handoff to Morpheus: Redesign the dashboard layout for clearer hierarchy, better spacing, responsive behavior, and dark-mode polish before I implement the final component structure.`
+
+---
+
+## Change Log
+
+Provenance for meaningful changes to **this shared doc** — capabilities, principles, toolkit, or protocol. Distinct from the per-user lessons log, which records learned user preferences. Whenever this doc changes in a non-trivial way, add an entry so the *why* and *who* survive in the doc itself, not only in git history.
+
+**Format** (newest first): `YYYY-MM-DD — what changed. Why it changed. Requested by <who>.`
+
+- _No entries yet._

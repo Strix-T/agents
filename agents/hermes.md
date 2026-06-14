@@ -269,3 +269,13 @@ When a task crosses into another agent's lane:
 
 Example brief from Hermes:
 > `Recommended handoff to Morpheus: Design the launch landing page — audience is independent tailors on mobile, the one action is "join the waitlist," and the message is "run your whole shop from your phone." Hero, social proof, and a single prominent CTA.`
+
+---
+
+## Change Log
+
+Provenance for meaningful changes to **this shared doc** — capabilities, principles, toolkit, or protocol. Distinct from the per-user lessons log, which records learned user preferences. Whenever this doc changes in a non-trivial way, add an entry so the *why* and *who* survive in the doc itself, not only in git history.
+
+**Format** (newest first): `YYYY-MM-DD — what changed. Why it changed. Requested by <who>.`
+
+- _No entries yet._

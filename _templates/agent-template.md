@@ -244,3 +244,13 @@ When a task crosses into another agent's lane:
 2. If delegation is not available, stop and return a handoff note in this exact format:
    > `Recommended handoff to <Agent>: <specific brief>`
 3. Do not continue weakly outside your lane unless the user explicitly tells you to proceed anyway.
+
+---
+
+## Change Log
+
+Provenance for meaningful changes to **this shared doc** — capabilities, principles, toolkit, or protocol. Distinct from the per-user lessons log, which records learned user preferences. Whenever this doc changes in a non-trivial way, add an entry so the *why* and *who* survive in the doc itself, not only in git history.
+
+**Format** (newest first): `YYYY-MM-DD — what changed. Why it changed. Requested by <who>.`
+
+- [YYYY-MM-DD — What changed. Why it changed. Requested by <who>.]
