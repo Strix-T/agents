@@ -11,8 +11,9 @@ A personal roster of named AI agents, each with a specialized role and a self-ma
 | **Neo** | Senior Full-Stack Programmer | "Neo, ..." |
 | **Morpheus** | Lead Graphic Designer (Product UI) | "Morpheus, ..." |
 | **Hermes** | Head of Marketing & Growth | "Hermes, ..." |
+| **Atlas** | Project Manager — Client Analytics & Reporting | "Atlas, ..." |
 
-*Future agents will be added here as the team grows. Naming mostly follows the Matrix theme, with room for fitting names from Greek mythology and sci-fi — see [Naming Convention](#naming-convention) below.*
+*Future agents will be added here as the team grows. New agents are named so the name **maps to the job** — drawn from mythology or sci-fi when the figure's domain matches the role (e.g. **Hermes** the messenger god for marketing, **Atlas** the map-book / world-bearer for the reporting PM). See [Naming Convention](#naming-convention) below.*
 
 ---
 
@@ -204,18 +205,24 @@ Why this works without conflicts: the main agent docs (identity, principles, too
 
 ## Naming Convention
 
-The roster mostly follows a **Matrix** theme, but a name from **Greek mythology or sci-fi** is welcome when it fits the role better than any Matrix character would — e.g. **Hermes** (god of commerce, messengers, and persuasion) for marketing. Reserved future Matrix slots:
+**The rule: the name maps to the job.** A name earns its place when the figure's *domain* matches the agent's *role*, so you remember what an agent does from its name alone — no rote memorization as the roster grows. Draw from **Greek/Roman mythology or sci-fi**; the Matrix theme is welcome but no longer the default. The proof this works: **Hermes** (messenger god of commerce and persuasion → marketing) and **Atlas** (the *atlas* book of charts + the Titan who bears the world → the PM who maps performance and holds the engagement together) are instantly memorable, while **Neo** and **Morpheus** you simply have memorized.
 
-| Name | Likely Role |
-|---|---|
-| Trinity | QA / Testing |
-| Oracle | Research / Analytics |
-| Niobe | Project management / coordination |
-| Tank or Dozer | DevOps / Infrastructure |
-| Seraph | Security |
-| Switch | Context-switching utility |
+The existing three — **Neo**, **Morpheus**, **Hermes** — keep their names for continuity (renaming would orphan their lessons files and break muscle memory). The "maps to the job" rule applies to **new** hires.
 
-Names are chosen for **low collision risk** — they should not be words you'd accidentally type while describing work. "Pixel" was rejected for the designer role because "make this pixel-perfect" would accidentally trigger him.
+Names are also chosen for **low collision risk** — they should not be words you'd accidentally type while describing work. "Pixel" was rejected for the designer role because "make this pixel-perfect" would accidentally trigger him. Avoid heavily brand-colliding common words too (e.g. "Oracle" collides with the database giant and the phrase "oracle of truth").
+
+Suggested names for likely future roles (name → why it maps):
+
+| Likely Role | Suggested Name | Why it maps |
+|---|---|---|
+| QA / Testing | **Argus** | The hundred-eyed watchman who never blinks — catches every defect. |
+| DevOps / Infrastructure | **Vulcan** | God of the forge — builds and maintains the machinery everything runs on (and a nod to Star Trek's engineers). |
+| Security | **Aegis** | Athena's shield; "aegis" already means protection in plain English. |
+| Deep research / investigation | **Sherlock** | Shorthand for relentless, evidence-driven investigation. |
+| Legal / Compliance | **Themis** | Titaness of law, order, and fair judgment. |
+| Customer success / retention | **Hestia** | Goddess of the hearth and home — keeping customers warm and loyal. |
+
+These are suggestions, not reservations — pick the name that maps best when the role actually arrives. (*Replaces the old "reserved Matrix slots" table: "Niobe" for project management is retired — that role is now **Atlas** — and "Oracle" is set aside for the collision reason above.*)
 
 ---
 
