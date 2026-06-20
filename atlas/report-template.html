@@ -291,20 +291,116 @@
     .stat .s-plain { display: block; }
   }
 
-  /* ===================== PRINT / PDF ===================== */
+  /* ===================== PRINT BUTTON TOOLBAR (screen only) ===================== */
+  .report-toolbar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; gap: 18px;
+    padding: 12px clamp(16px, 4vw, 30px);
+    background: rgba(9, 11, 13, 0.85);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .report-toolbar__label { font-size: 13px; color: var(--text-soft); font-weight: 700; letter-spacing: 0.02em; }
+  .report-toolbar__label span { color: var(--accent); }
+  .print-btn {
+    margin-left: auto;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px; border-radius: var(--r-pill);
+    border: 1px solid var(--accent-line);
+    background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+    color: #04130a; font-family: var(--font-sans); font-weight: 700; font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 0 24px rgba(74, 222, 128, 0.30);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .print-btn:hover { transform: translateY(-1px); box-shadow: 0 0 34px rgba(74, 222, 128, 0.5); }
+  .print-btn:active { transform: translateY(0); }
+
+  /* ===================== PRINT / PDF =====================
+     Pagination strategy (US Letter): keep the full-bleed dark layout, but let
+     tall sections FLOW across page breaks while protecting the *atomic* blocks
+     inside them (each card, stat, chart, table row, funnel step, list item).
+     We deliberately do NOT put `break-inside: avoid` on the big `section`
+     wrappers — when a section is taller than a page the engine breaks it anyway,
+     usually mid-card, which strands headers from their charts and leaves big
+     dark gaps. Protecting the atoms instead yields clean, well-filled pages.
+     Rules are logical (break-inside / break-before / break-after + orphans/
+     widows), never hard-coded pixel break positions, so reports of any length
+     paginate gracefully. Modern `break-*` first, `page-break-*` as fallback. */
   @media print {
-    @page { margin: 14mm; }
+    @page { margin: 0; }   /* full-bleed: dark fills to the page edge; also leaves no room for the browser's header/footer junk */
     html, body {
       background: var(--bg) !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
       color-adjust: exact !important;
       background-attachment: scroll;
+      orphans: 3; widows: 3;   /* never strand 1-2 lines of a paragraph across a break */
     }
-    .wrap { max-width: 100%; padding: 0 4mm; } /* small safe inset so nothing hugs the page trim */
-    section { margin-top: 26px; page-break-inside: avoid; }
-    .cover { page-break-after: avoid; }
-    .card, .stat, .chart-card, .watch-list li, .mini, .diagnosis, .means { page-break-inside: avoid; }
+    .wrap { max-width: 100%; padding: 13mm 14mm; } /* content inset now lives here (page margin is 0), like the care-plan sheet */
+
+    /* Sections FLOW (no break-inside:avoid). Trim the big top margin so flowed
+       sections sit comfortably rather than getting shoved whole to a new page.
+       Tighter inter-section spacing also helps a section's lead block pack onto
+       the tail of the previous page instead of opening a dark gap. */
+    section { margin-top: 18px; }
+    #bottom-line { margin-top: 16px; }
+    .chart-card { padding-bottom: 20px; }
+    .section-head { margin-bottom: 16px; }   /* tighter than screen so a section's lead chart can pack onto the prior page's tail */
+
+    /* The two full-width trend/area line charts are the tallest atomic blocks
+       and lead sections, so on paper they push the next block onto a new page
+       and open a dark gap. Cap ONLY these two for print: the inline SVG keeps
+       its viewBox aspect ratio, so constraining height + width:auto scales the
+       whole chart down PROPORTIONALLY (no squashing) and centers it. A line on
+       a grid reads perfectly at this height; we deliberately do NOT shrink the
+       bar list or donut (their rows/labels would get cramped). Logical,
+       content-agnostic rule — not a hard-coded break position. */
+    #chart-visibility svg.chart,
+    #chart-visitors svg.chart { max-height: 232px; width: auto; max-width: 100%; margin-inline: auto; }
+
+    /* The cover never splits. */
+    .cover { break-inside: avoid; page-break-inside: avoid; }
+
+    /* Keep every section's eyebrow + heading + intro welded to the content that
+       follows — a section label must never orphan at the foot of a page. */
+    .section-head { break-inside: avoid; page-break-inside: avoid; break-after: avoid; page-break-after: avoid; }
+    .section-head .eyebrow, .section-head h2, .section-head .lead { break-after: avoid; page-break-after: avoid; }
+    h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+    /* Protect the ATOMIC blocks: each of these stays whole on one page. This is
+       what stops a card's header stranding from its chart/body across a break.
+       Visual blocks (charts, donuts, bar lists, stat cards, list items) must
+       never split — a chart cut in half looks broken. */
+    .card, .stat, .chart-card, .watch-list li, .win-list li, .mini, .diagnosis, .means {
+      break-inside: avoid; page-break-inside: avoid;
+    }
+    /* A chart card's title/sub travel with their chart (the card-level avoid
+       already covers a normal card; this keeps the head attached if a very tall
+       chart card ever has to break). */
+    .chart-title, .chart-sub { break-after: avoid; page-break-after: avoid; }
+    .chart-title { break-inside: avoid; page-break-inside: avoid; }
+
+    /* EXCEPTION — a card whose body is a TABLE is allowed to flow across a page.
+       A long search-terms list breaking with a repeating header is normal print
+       behavior (and lets it start filling the tail of the previous page instead
+       of leaving a big dark gap). Rows stay atomic; the title sticks to row 1. */
+    .card:has(.tbl) { break-inside: auto; page-break-inside: auto; }
+
+    /* Tables: repeat the header on every page the table spills onto, and never
+       split an individual row across the boundary. */
+    thead { display: table-header-group; }
+    tfoot { display: table-footer-group; }
+    .tbl tr, tr { break-inside: avoid; page-break-inside: avoid; }
+
+    /* Two-column rows: let the grid itself break between its cards rather than
+       jumping the whole block; the card-level avoid keeps each card intact. */
+    .two-col { break-inside: auto; page-break-inside: auto; }
+
+    /* Footer must not strand alone at the top of a fresh page: pull it up so it
+       stays with the preceding section, and keep it whole if it does break. */
+    footer { break-before: avoid; page-break-before: avoid; break-inside: avoid; page-break-inside: avoid; margin-top: 28px; }
+
     .stat-grid { grid-template-columns: 1fr 1fr 1fr; } /* fixed columns for predictable print layout */
     .stat .s-plain { display: block !important; }
     .no-print { display: none !important; }
@@ -315,6 +411,17 @@
 </style>
 </head>
 <body>
+<div class="report-toolbar no-print">
+  <div class="report-toolbar__label">STR<span>IX</span> · Website Performance Report</div>
+  <button type="button" class="print-btn" onclick="window.print()" aria-label="Print or save this report as a PDF">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="6 9 6 2 18 2 18 9"/>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect x="6" y="14" width="12" height="8"/>
+    </svg>
+    Print / Save as PDF
+  </button>
+</div>
 <div class="wrap" id="report">
 
   <!-- ============================ COVER / HEADER ============================ -->
@@ -924,9 +1031,13 @@ const REPORT_DATA = {
 
   /* ----------------------------------------------------------------- FUNNEL
      Every piece of text lives INSIDE the centered column — nothing hangs off
-     the sides, so it never clips on a phone. Each step is a centered block
-     (label + value + plain note stacked inside). Between blocks sits a centered
-     drop-off marker; the single worst drop is flagged red as the leak. */
+     the sides, so it never clips (on a phone OR on the narrowest tapered step).
+     Each step is a centered block (label + value + plain note stacked inside).
+     The `plain` note is WORD-WRAPPED to fit that step's own width — SVG <text>
+     does not wrap on its own, so we split it into <tspan> lines sized to the
+     box, and grow the block's height to fit however many lines it needs. That
+     makes it robust to any note length and any taper. Between blocks sits a
+     centered drop-off marker; the single worst drop is flagged red as the leak. */
   function drawFunnel(mountId, steps, opts) {
     var mount = document.getElementById(mountId);
     if (!mount) return;
@@ -934,11 +1045,52 @@ const REPORT_DATA = {
     opts = opts || {};
     var n = steps.length;
     var W = 760;
-    var stepH = 96, gap = 56;            // taller blocks (3 lines), roomy gap for the drop marker
-    var H = n * stepH + (n - 1) * gap + 6;
+    var gap = 56;                         // roomy gap for the drop marker between blocks
     var top = steps[0].value || 1;
-    var maxW = W, minW = W * 0.52;        // floor wide enough to hold the note text
+    var maxW = W, minW = W * 0.52;        // narrowest box; notes wrap to whatever width a step gets
     var cx = W / 2;
+
+    // Block vertical metrics (px from the block top).
+    var labelY = 30;       // baseline of the label line
+    var valueY = 60;       // baseline of the big value
+    var noteTop = 74;      // top of the wrapped-note area
+    var noteLineH = 15;    // line height for the 12px note
+    var notePadBottom = 14;
+    var sidePad = 22;      // horizontal breathing room inside the box for wrapped text
+
+    function barWidth(v) { return minW + (maxW - minW) * (v / top); }
+
+    // Greedy word-wrap for SVG text. We don't have measureText here cheaply, so
+    // estimate width from an average glyph width for the note's font size; the
+    // floor box width (minW) is generous, so a slight over-estimate just wraps a
+    // touch earlier — which is safe (never clips). Returns an array of lines.
+    function wrapNote(text, boxW, fontSize) {
+      if (!text) return [];
+      var avgGlyph = fontSize * 0.52;                 // ~ avg char advance for this UI font
+      var maxChars = Math.max(8, Math.floor((boxW - sidePad * 2) / avgGlyph));
+      var words = String(text).split(/\s+/);
+      var lines = [], line = "";
+      words.forEach(function (word) {
+        var trial = line ? line + " " + word : word;
+        if (trial.length > maxChars && line) { lines.push(line); line = word; }
+        else { line = trial; }
+      });
+      if (line) lines.push(line);
+      return lines;
+    }
+
+    // Pre-compute each step's wrapped lines + block height so we can lay out
+    // vertically with the right total SVG height (no fixed stepH that clips).
+    var minBlockH = valueY + 18;          // enough for label + value even with no note
+    var layout = steps.map(function (st) {
+      var w = barWidth(st.value);
+      var lines = wrapNote(st.plain, w, 12);
+      var noteH = lines.length ? (lines.length * noteLineH + notePadBottom) : 0;
+      var h = lines.length ? Math.max(minBlockH, noteTop + noteH) : minBlockH;
+      return { w: w, lines: lines, h: h };
+    });
+
+    var H = layout.reduce(function (a, L) { return a + L.h; }, 0) + (n - 1) * gap + 6;
 
     // Which gap is "the leak"? Atlas can set funnel.leakAfter (0-based index of
     // the step the drop happens AFTER) to match the written diagnosis. If unset,
@@ -963,20 +1115,25 @@ const REPORT_DATA = {
     defs.appendChild(grad);
     s.appendChild(defs);
 
-    function barWidth(v) { return minW + (maxW - minW) * (v / top); }
-
+    var yCursor = 3;
     steps.forEach(function (st, i) {
-      var y = i * (stepH + gap) + 3;
-      var w = barWidth(st.value);
+      var L = layout[i];
+      var y = yCursor;
+      var w = L.w, blockH = L.h;
       var x = cx - w / 2;
       // funnel block — fade deeper steps slightly so the taper reads as a funnel
       var opacity = 1 - i * 0.1;
-      s.appendChild(el("rect", { x: x, y: y, width: w, height: stepH, rx: 14, fill: "url(#funFill-" + mountId + ")", opacity: opacity.toFixed(2) }));
-      // label + big value + plain note, all centered inside the block (dark ink on green)
-      s.appendChild(el("text", { x: cx, y: y + 30, "text-anchor": "middle", fill: "#06120B", "font-size": "15", "font-weight": "700" }, st.label));
-      s.appendChild(el("text", { x: cx, y: y + 60, "text-anchor": "middle", fill: "#06120B", "font-size": "26", "font-weight": "800", "letter-spacing": "-0.5" }, fmt(st.value)));
-      if (st.plain) {
-        s.appendChild(el("text", { x: cx, y: y + 82, "text-anchor": "middle", fill: "rgba(6,18,11,0.72)", "font-size": "12", "font-weight": "600" }, st.plain));
+      s.appendChild(el("rect", { x: x, y: y, width: w, height: blockH, rx: 14, fill: "url(#funFill-" + mountId + ")", opacity: opacity.toFixed(2) }));
+      // label + big value, centered inside the block (dark ink on green)
+      s.appendChild(el("text", { x: cx, y: y + labelY, "text-anchor": "middle", fill: "#06120B", "font-size": "15", "font-weight": "700" }, st.label));
+      s.appendChild(el("text", { x: cx, y: y + valueY, "text-anchor": "middle", fill: "#06120B", "font-size": "26", "font-weight": "800", "letter-spacing": "-0.5" }, fmt(st.value)));
+      // plain note — wrapped to this box's width, each line a centered <tspan>
+      if (L.lines.length) {
+        var noteText = el("text", { x: cx, y: y + noteTop + 12, "text-anchor": "middle", fill: "rgba(6,18,11,0.72)", "font-size": "12", "font-weight": "600" });
+        L.lines.forEach(function (ln, li) {
+          noteText.appendChild(el("tspan", { x: cx, dy: li === 0 ? 0 : noteLineH }, ln));
+        });
+        s.appendChild(noteText);
       }
 
       // drop-off marker, centered in the gap below this block
@@ -984,16 +1141,18 @@ const REPORT_DATA = {
         var keep = Math.round((steps[i + 1].value / st.value) * 100);
         var drop = 100 - keep;
         var isLeak = i === worstIdx;
-        var my = y + stepH + gap / 2;
+        var my = y + blockH + gap / 2;
         var tone = isLeak ? C.bad : C.axis;
         // connecting chevron just under the block
-        s.appendChild(el("path", { d: "M" + (cx - 8) + "," + (y + stepH + 10) + " L" + cx + "," + (y + stepH + 18) + " L" + (cx + 8) + "," + (y + stepH + 10), stroke: tone, "stroke-width": "2.2", fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" }));
+        s.appendChild(el("path", { d: "M" + (cx - 8) + "," + (y + blockH + 10) + " L" + cx + "," + (y + blockH + 18) + " L" + (cx + 8) + "," + (y + blockH + 10), stroke: tone, "stroke-width": "2.2", fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" }));
         // centered drop label
         var dropTxt = "▼ " + drop + "% dropped off" + (isLeak ? "  —  the leak" : "");
         s.appendChild(el("text", { x: cx, y: my + 6, "text-anchor": "middle", fill: tone, "font-size": "13", "font-weight": "700", "font-family": "monospace" }, dropTxt));
         // small "continued" beneath, muted
         s.appendChild(el("text", { x: cx, y: my + 24, "text-anchor": "middle", fill: C.axis, "font-size": "11.5", "font-family": "monospace" }, keep + "% continued on"));
       }
+
+      yCursor += blockH + gap;
     });
 
     s.setAttribute("aria-label", "Lead funnel: " + steps.map(function (st) { return st.label + " " + fmt(st.value); }).join(", then ") + ".");
