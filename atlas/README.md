@@ -9,14 +9,24 @@ Everything Atlas (the analytics/reporting PM agent) needs to turn a client's Goo
 | `report-template.html` | The reusable master report. Self-contained (inline CSS + vanilla JS, no CDN/fonts), renders offline, prints clean to PDF. Designed by Morpheus. |
 | `sample-report.html` | The template filled with a worked example (Blue Ridge Family Dentistry) so you can see the finished product. Open it in any browser. |
 
-Both are **single self-contained HTML files** — open by double-clicking, email as one attachment, or host as a link. To save as PDF: open in a browser → Print → "Save as PDF."
+Both are **single self-contained HTML files** — open by double-clicking, email as one attachment, or host as a link. The client **PDF** is generated with Chrome — see [Exporting the PDF](#exporting-the-pdf).
 
 ## How a monthly report gets made
 
 1. **Drop the data** into the client's intake folder (see convention below) — CSV exports are best, but PDF or screenshots work too.
 2. **Tell Atlas:** *"Atlas, build June's report for [client] — exports are in [path], plan is Premium Growth."*
 3. Atlas delegates three scans (one each for GBP, GSC, GA4), verifies the numbers, builds the funnel, writes the story, fills the template, and hands back `report.html`.
-4. **Review and send.** Atlas opens/screenshots it to confirm it renders; you do the final read and deliver.
+4. **Atlas exports the PDF with Chrome** — `./render-pdf.sh <client>/reports/2026-06/report.html` produces the print-perfect, page-mapped PDF. He checks it renders; you do the final read and send it.
+
+## Exporting the PDF
+
+The client deliverable is a PDF, and it's **always generated with Chrome** via `render-pdf.sh`:
+
+```
+./render-pdf.sh <client>/reports/2026-06/report.html
+```
+
+**Why Chrome, not Safari?** The report is a full-bleed, page-mapped document. Chrome's print engine renders it exactly as designed — 8 clean pages, dark to every trim edge, crisp badge dot. Safari's "Save as PDF" imposes its own print margins even when the CSS says `margin: 0`, which inserts blank pages and leaves white strips. So Atlas exports the PDF with Chrome automatically. The HTML still **views** perfectly in Safari (or any browser) — only the PDF export uses Chrome.
 
 ## Intake folder convention
 

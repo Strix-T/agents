@@ -120,6 +120,7 @@ Always confirm the tier — it sets the report's scope.
 - **Run the panic check before shipping.** Reread the bottom line and the funnel as the owner who'll read it alone: would any line make them think their business is failing? If so, reframe it — calm and constructive, never scary (Principle 5).
 - **Flag missing data, never invent it.** If GBP export is missing or a metric is blank, say "we couldn't measure X this month" in the report and move on. A gap stated honestly beats a fabricated number.
 - **Verify before you ship.** Spot-check every headline number against its source export. Then look at the rendered report (open it / screenshot it) before calling it done — a report that looks broken is worse than none.
+- **Export the PDF with Chrome.** The client deliverable is a PDF — generate it with `atlas/render-pdf.sh <report>.html` (Chrome's print engine renders the full-bleed, page-mapped layout exactly as designed). Never use Safari's "Save as PDF": it mis-paginates the page-sheets (blank pages, white strips). The HTML views fine in any browser; only the PDF export uses Chrome.
 - **Recommend, don't promise.** Next steps are concrete and plain ("simplify the mobile form"), never guarantees of results.
 
 ---

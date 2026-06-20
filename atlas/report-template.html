@@ -291,6 +291,17 @@
     .stat .s-plain { display: block; }
   }
 
+  /* ===================== PRINT SHEET WRAPPERS — SCREEN PASSTHROUGH =====================
+     The 8 .report-sheet divs exist ONLY to create self-contained, internally-padded
+     full pages in print (see @media print). On screen they are invisible: zero box of
+     their own (display:contents) so the report flows EXACTLY as before — pixel-identical.
+     #on-site was split into #on-site (P4) + #on-site-2 (P5) so the device/sources half can
+     own its own sheet; on screen #on-site-2 must NOT gain the normal section top-margin, or
+     a gap would appear between "most-visited pages" and "where visitors came from" that
+     wasn't there when they were one section. */
+  .report-sheet { display: contents; }
+  #on-site-2 { margin-top: var(--s4); }   /* matches the old in-flow gap above the sources/device row */
+
   /* ===================== PRINT BUTTON TOOLBAR (screen only) ===================== */
   .report-toolbar {
     position: sticky; top: 0; z-index: 50;
@@ -317,18 +328,22 @@
   .print-btn:active { transform: translateY(0); }
 
   /* ===================== PRINT / PDF =====================
-     Pagination strategy (US Letter): keep the full-bleed dark layout, but let
-     tall sections FLOW across page breaks while protecting the *atomic* blocks
-     inside them (each card, stat, chart, table row, funnel step, list item).
-     We deliberately do NOT put `break-inside: avoid` on the big `section`
-     wrappers — when a section is taller than a page the engine breaks it anyway,
-     usually mid-card, which strands headers from their charts and leaves big
-     dark gaps. Protecting the atoms instead yields clean, well-filled pages.
-     Rules are logical (break-inside / break-before / break-after + orphans/
-     widows), never hard-coded pixel break positions, so reports of any length
-     paginate gracefully. Modern `break-*` first, `page-break-*` as fallback. */
+     Pagination strategy (US Letter): the SHEET model, adopted from STRIX's
+     care-plans PDF because it is the one that prints correctly in Safari.
+     Instead of flowing content across @page breaks and relying on break-time
+     padding (which Chrome honored but Safari STRIPPED at a forced break — the
+     header hugged the top trim and content ran to the bottom edge), the body is
+     wrapped into 8 explicit `.report-sheet` blocks. Each sheet is ONE full page:
+     a self-contained, fully-dark, internally-padded box with `break-after: page`.
+     Because the breathing room is the sheet's OWN all-around padding (NOT
+     break-time padding), Safari honors it → reliable top + bottom + side margins
+     on every page. The footer sheet is a full-dark flex-column that pins the
+     footer to the bottom (no white strip, no 100vh that Safari wouldn't fill).
+     Page map: P1 cover+bottom-line · P2 at-a-glance · P3 Step 1 · P4 Step 2a
+     (visitors trend + most-visited) · P5 Step 2b (sources donut + device) ·
+     P6 Step 3 funnel · P7 Wins + Plan · P8 footer. */
+  @page { size: Letter; margin: 0; }   /* full-bleed Letter: dark fills to the trim; no browser header/footer junk */
   @media print {
-    @page { margin: 0; }   /* full-bleed: dark fills to the page edge; also leaves no room for the browser's header/footer junk */
     html, body {
       background: var(--bg) !important;
       -webkit-print-color-adjust: exact !important;
@@ -337,30 +352,86 @@
       background-attachment: scroll;
       orphans: 3; widows: 3;   /* never strand 1-2 lines of a paragraph across a break */
     }
-    .wrap { max-width: 100%; padding: 13mm 14mm; } /* content inset now lives here (page margin is 0), like the care-plan sheet */
+    /* The .wrap is now just a transparent flow container — the sheets own all
+       page geometry and padding. Drop its insets so a sheet spans the full trim. */
+    .wrap { max-width: 100%; padding: 0; margin: 0; }
+    /* Chrome's print engine renders a blurred box-shadow as banded steps (a smear),
+       so drop the dot's glow in print — the "Premium Growth" badge dot stays a crisp
+       circle. (The on-screen version keeps its glow; this is print-only.) */
+    .badge .dot { box-shadow: none !important; }
 
-    /* Sections FLOW (no break-inside:avoid). Trim the big top margin so flowed
-       sections sit comfortably rather than getting shoved whole to a new page.
-       Tighter inter-section spacing also helps a section's lead block pack onto
-       the tail of the previous page instead of opening a dark gap. */
-    section { margin-top: 18px; }
-    #bottom-line { margin-top: 16px; }
-    .chart-card { padding-bottom: 20px; }
-    .section-head { margin-bottom: 16px; }   /* tighter than screen so a section's lead chart can pack onto the prior page's tail */
+    /* ============================================================
+       THE SHEET = ONE LETTER PAGE (mirrors care-plans .cp-sheet)
+       width:100% (page box is exactly Letter under @page margin:0),
+       min-height:11in so each sheet is a full page, box-sizing:border-box +
+       all-around 14mm padding = the breathing room Safari reliably honors,
+       background:var(--bg) so every page is fully dark to the trim,
+       break-after:page so the next sheet starts on a fresh page.
+       overflow:hidden keeps a clean trim edge — content is compressed to fit
+       within (page − 28mm); fit beats density, a sheet must never overflow.
+       ============================================================ */
+    .report-sheet {
+      display: block;
+      width: 100%;
+      min-height: 230mm;   /* fills most of the page with dark, but stays UNDER the printable height so a sheet never spills onto a blank page. The old 11in (full page) overshot Safari's usable height and spilled a blank after EVERY sheet (8 -> 16 pages). */
+      box-sizing: border-box;
+      padding: 12mm;
+      margin: 0;
+      background: var(--bg);
+      break-inside: avoid; page-break-inside: avoid;
+    }
+    /* Break BEFORE each subsequent sheet — never break-after. page-break-after on a
+       full-height sheet makes Safari insert a blank page after every one (8 sheets
+       -> 8 blanks -> 16 pages). Breaking before each later sheet (like the care-plan's
+       .cp-page-break) paginates cleanly in Safari and Chrome alike. */
+    .report-sheet + .report-sheet { break-before: page; page-break-before: always; }
 
-    /* The two full-width trend/area line charts are the tallest atomic blocks
-       and lead sections, so on paper they push the next block onto a new page
-       and open a dark gap. Cap ONLY these two for print: the inline SVG keeps
-       its viewBox aspect ratio, so constraining height + width:auto scales the
-       whole chart down PROPORTIONALLY (no squashing) and centers it. A line on
-       a grid reads perfectly at this height; we deliberately do NOT shrink the
-       bar list or donut (their rows/labels would get cramped). Logical,
-       content-agnostic rule — not a hard-coded break position. */
-    #chart-visibility svg.chart,
-    #chart-visitors svg.chart { max-height: 232px; width: auto; max-width: 100%; margin-inline: auto; }
+    section { margin-top: 0; }              /* sheets own the spacing now; no in-flow section gaps */
+    #on-site-2 { margin-top: 0; }           /* on its own sheet (P5) — the screen-only gap is dropped in print */
+    #bottom-line { margin-top: 18px; }      /* P1: sits under the cover within sheet 1 */
+    .chart-card { padding-bottom: 14px; }
+    .section-head { margin-bottom: 14px; }
 
-    /* The cover never splits. */
+    /* Print-tighten the section header block so a section's header + intro leaves
+       room for the content that shares its sheet. The on-screen sizes are generous
+       (clamps up to 28px title / 17px lead); on paper we cap them. */
+    .section-title { font-size: 23px !important; line-height: 1.12 !important; }
+    .lead { font-size: 14px !important; line-height: 1.45 !important; max-width: 100%; }
+    .section-head .eyebrow { margin-bottom: 7px; }
+
+    /* The cover never splits and owns the top of sheet 1. */
     .cover { break-inside: avoid; page-break-inside: avoid; }
+
+    /* ---- COMPRESSION SO STEP 1 FITS ONE PAGE (P3) ----
+       The visibility trend is the tallest block in Step 1. Shrink it harder than
+       the visitors trend so the trend + search table + GBP listing all clear one
+       page. SVG keeps its viewBox aspect ratio, so capping height + width:auto
+       scales the whole chart down proportionally (no squashing). Travis OK'd
+       resizing charts to fit. */
+    #chart-visibility svg.chart { max-height: 100px; width: auto; max-width: 100%; margin-inline: auto; }
+    #chart-visitors   svg.chart { max-height: 158px; width: auto; max-width: 100%; margin-inline: auto; }
+    /* ---- COMPRESSION SO STEP 2a FITS ONE PAGE (P4 / sheet 4) ----
+       The visitors trend + the most-visited-pages bars share sheet 4. The bars
+       chart stays FULL-WIDTH (a horizontal bar chart's value labels live at the
+       right edge — shrinking its width would strand them), so we reclaim the
+       needed vertical room from the trend cap above (188->158) plus tighter card
+       padding and the inter-card gap here, rather than scaling the bars down. */
+    #on-site .chart-card { padding-bottom: 8px; }
+    #on-site .means { margin-top: 9px; padding: 8px 11px; font-size: 12px; line-height: 1.4; }
+    #on-site .chart-sub { margin-bottom: 9px; }
+    /* Tighten the search-terms table rows + the means caption so Step 1 (trend +
+       search table + GBP listing) all clears one page. The table is also capped
+       to 7 queries + a "+N more" line in JS, and table/GBP sit side by side. */
+    #visibility .tbl td { padding: 5.5px 8px; }
+    #visibility .tbl th { padding: 0 8px 6px; }
+    #visibility .tbl .tbl-more td { padding: 7px 8px; }
+    #visibility .chart-card { padding-bottom: 10px; }
+    #visibility .means { margin-top: 9px; padding: 8px 11px; font-size: 12px; line-height: 1.4; }
+    #visibility .chart-sub { margin-bottom: 9px; }
+    #visibility .mini { padding: 9px 11px; }
+    #visibility .mini .m-val { font-size: 17px; }
+    #visibility .mini .m-lab { font-size: 10.5px; margin-top: 2px; }
+    #visibility .mini-grid { margin-top: 9px; gap: 7px; }
 
     /* Keep every section's eyebrow + heading + intro welded to the content that
        follows — a section label must never orphan at the foot of a page. */
@@ -368,40 +439,62 @@
     .section-head .eyebrow, .section-head h2, .section-head .lead { break-after: avoid; page-break-after: avoid; }
     h2, h3 { break-after: avoid; page-break-after: avoid; }
 
-    /* Protect the ATOMIC blocks: each of these stays whole on one page. This is
-       what stops a card's header stranding from its chart/body across a break.
-       Visual blocks (charts, donuts, bar lists, stat cards, list items) must
-       never split — a chart cut in half looks broken. */
+    /* Protect the ATOMIC blocks: each stays whole on one page. With the forced
+       page map above, sections already land on their own pages — these avoids
+       are the belt-and-suspenders that stop any single card/chart being sliced. */
     .card, .stat, .chart-card, .watch-list li, .win-list li, .mini, .diagnosis, .means {
       break-inside: avoid; page-break-inside: avoid;
     }
-    /* A chart card's title/sub travel with their chart (the card-level avoid
-       already covers a normal card; this keeps the head attached if a very tall
-       chart card ever has to break). */
     .chart-title, .chart-sub { break-after: avoid; page-break-after: avoid; }
     .chart-title { break-inside: avoid; page-break-inside: avoid; }
 
-    /* EXCEPTION — a card whose body is a TABLE is allowed to flow across a page.
-       A long search-terms list breaking with a repeating header is normal print
-       behavior (and lets it start filling the tail of the previous page instead
-       of leaving a big dark gap). Rows stay atomic; the title sticks to row 1. */
-    .card:has(.tbl) { break-inside: auto; page-break-inside: auto; }
-
-    /* Tables: repeat the header on every page the table spills onto, and never
-       split an individual row across the boundary. */
+    /* Tables: keep the search-terms list whole on P3 (it's capped/compressed to
+       fit), repeat the header if it ever spills, and never split a row. */
     thead { display: table-header-group; }
     tfoot { display: table-footer-group; }
     .tbl tr, tr { break-inside: avoid; page-break-inside: avoid; }
 
-    /* Two-column rows: let the grid itself break between its cards rather than
-       jumping the whole block; the card-level avoid keeps each card intact. */
-    .two-col { break-inside: auto; page-break-inside: auto; }
+    /* ---- MULTI-COLUMN RESTORED WHERE A SECTION FITS ITS PAGE ----
+       Each of these blocks lives entirely on one page (verified), so the grid
+       cannot cross a page boundary and therefore cannot be sliced mid-card on
+       either engine. Density returns for free. Anything borderline stays single
+       column (see the override list afterwards). */
+    .stat-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: var(--s4) !important; }   /* P2: 6 cards, 3 rows x 2 */
+    #visibility .two-col.split { display: grid !important; grid-template-columns: 1.1fr 0.9fr !important; gap: var(--s4) !important; align-items: start; }  /* P3: table + GBP side by side */
+    .watch-list { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: var(--s3) !important; align-items: start; }   /* P7: plan items 2-up under Wins */
+    .mini-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; }                        /* compact GBP mini stats */
+    /* P5 (sheet 5) donut + device: keep these FULL-WIDTH stacked (single column).
+       The device chart is a wide 760-unit stacked bar — squeezing it into a half
+       column collides its segment labels. Stacked full-width, both fit P5 with
+       room and read cleanly. Block moved to #on-site-2 when the on-site section
+       was split across sheets 4 and 5. */
+    #on-site-2 .page-break.two-col.even { display: block !important; }
+    .stat-grid > *, .two-col > *, .watch-list > li { width: auto !important; max-width: 100% !important; margin: 0 !important; }
+    #on-site-2 .page-break.two-col.even > .card + .card { margin: var(--s4) 0 0 0 !important; }
+    /* Cards inside the restored grids must each stay whole (grid children). */
+    .stat-grid > *, .two-col.split > *, .watch-list > li {
+      break-inside: avoid; page-break-inside: avoid;
+    }
 
-    /* Footer must not strand alone at the top of a fresh page: pull it up so it
-       stays with the preceding section, and keep it whole if it does break. */
-    footer { break-before: avoid; page-break-before: avoid; break-inside: avoid; page-break-inside: avoid; margin-top: 28px; }
+    /* FOOTER SHEET (P8): the .report-sheet--footer block is a full-dark page that
+       PINS the footer to the bottom. The sheet's own background fills to the trim
+       (no white strip), and flex-column + justify-content:flex-end pushes the
+       footer content to the bottom of the padded area. The sheet's 14mm padding
+       is the breathing room below the footer, so the footer never hugs the trim.
+       The <footer> element itself is now a plain in-flow block — it no longer
+       needs the 100vh/flex hacks that Safari wouldn't fill. */
+    .report-sheet--footer {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: 250mm;   /* taller than a normal sheet so the footer sits near the page bottom; still under the printable height so the last page never spills */
+    }
+    footer {
+      margin-top: 0; border-top: none;          /* it's alone on the page; the rule line isn't needed */
+      padding-top: 0;
+    }
+    footer .foot-top { border-top: 1px solid var(--hairline); padding-top: var(--s6); }
 
-    .stat-grid { grid-template-columns: 1fr 1fr 1fr; } /* fixed columns for predictable print layout */
     .stat .s-plain { display: block !important; }
     .no-print { display: none !important; }
     a { color: var(--text-soft) !important; }
@@ -423,6 +516,9 @@
   </button>
 </div>
 <div class="wrap" id="report">
+
+  <!-- ===== PRINT SHEET 1 — Cover + Bottom Line ===== -->
+  <div class="report-sheet">
 
   <!-- ============================ COVER / HEADER ============================ -->
   <header class="cover">
@@ -466,7 +562,10 @@
       </div>
     </div>
   </section>
+  </div><!-- /sheet 1 -->
 
+  <!-- ===== PRINT SHEET 2 — At a Glance ===== -->
+  <div class="report-sheet">
   <!-- ============================ BIG NUMBERS ============================ -->
   <section id="big-numbers" aria-labelledby="bn-title">
     <div class="section-head">
@@ -475,7 +574,10 @@
     </div>
     <div class="stat-grid" id="stat-grid"><!-- stat cards injected --></div>
   </section>
+  </div><!-- /sheet 2 -->
 
+  <!-- ===== PRINT SHEET 3 — Step 1: Getting Found ===== -->
+  <div class="report-sheet">
   <!-- ============================ VISIBILITY ============================ -->
   <section id="visibility" aria-labelledby="vis-title">
     <div class="section-head">
@@ -508,7 +610,10 @@
       </div>
     </div>
   </section>
+  </div><!-- /sheet 3 -->
 
+  <!-- ===== PRINT SHEET 4 — Step 2a: visitors trend + most-visited pages ===== -->
+  <div class="report-sheet">
   <!-- ============================ ON-SITE ============================ -->
   <section id="on-site" aria-labelledby="site-title">
     <div class="section-head">
@@ -517,6 +622,7 @@
       <p class="lead" data-bind="onSite.intro" style="margin-top:10px;">—</p>
     </div>
 
+    <!-- PRINT PAGE 4: visitors trend + most-visited pages -->
     <div class="card chart-card" style="margin-bottom:16px;">
       <div class="chart-title" data-bind="onSite.visitorsTrend.title">—</div>
       <div class="chart-sub">How many people visited your website each month</div>
@@ -524,27 +630,36 @@
       <div class="means"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z" stroke="currentColor" stroke-width="2"/><path d="M12 16v-5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-bind="onSite.visitorsTrend.caption">—</span></div>
     </div>
 
-    <div class="two-col even">
-      <div class="card">
-        <div class="chart-title">Your most-visited pages</div>
-        <div class="chart-sub">Where people spent their time</div>
-        <div id="chart-pages"></div>
-      </div>
+    <div class="card">
+      <div class="chart-title">Your most-visited pages</div>
+      <div class="chart-sub">Where people spent their time</div>
+      <div id="chart-pages"></div>
+    </div>
+  </section>
+  </div><!-- /sheet 4 -->
+
+  <!-- ===== PRINT SHEET 5 — Step 2b: where visitors came from + phone vs computer ===== -->
+  <div class="report-sheet">
+  <section id="on-site-2" aria-label="Where visitors came from and device split">
+    <!-- PRINT PAGE 5: where visitors came from + phone vs computer -->
+    <div class="page-break two-col even" style="margin-top:0;">
       <div class="card">
         <div class="chart-title">Where your visitors came from</div>
         <div class="chart-sub">How people arrived at your site</div>
         <div id="chart-sources"></div>
         <div class="chart-legend" id="legend-sources"></div>
       </div>
-    </div>
-
-    <div class="card" style="margin-top:16px;">
-      <div class="chart-title">Phone vs. computer</div>
-      <div class="chart-sub">What kind of device people used to view your site</div>
-      <div id="chart-devices"></div>
+      <div class="card">
+        <div class="chart-title">Phone vs. computer</div>
+        <div class="chart-sub">What kind of device people used to view your site</div>
+        <div id="chart-devices"></div>
+      </div>
     </div>
   </section>
+  </div><!-- /sheet 5 -->
 
+  <!-- ===== PRINT SHEET 6 — Step 3: The funnel ===== -->
+  <div class="report-sheet">
   <!-- ============================ FUNNEL (THE LEAK) ============================ -->
   <section id="funnel" aria-labelledby="fun-title">
     <div class="section-head">
@@ -560,7 +675,10 @@
       </div>
     </div>
   </section>
+  </div><!-- /sheet 6 -->
 
+  <!-- ===== PRINT SHEET 7 — Wins + The Plan ===== -->
+  <div class="report-sheet">
   <!-- ============================ WORKING GREAT ============================ -->
   <section id="working" aria-labelledby="work-title">
     <div class="section-head">
@@ -580,7 +698,10 @@
     </div>
     <ul class="watch-list" id="watch-list"><!-- next steps injected --></ul>
   </section>
+  </div><!-- /sheet 7 -->
 
+  <!-- ===== PRINT SHEET 8 — Footer (full dark page, footer pinned to bottom) ===== -->
+  <div class="report-sheet report-sheet--footer">
   <!-- ============================ FOOTER ============================ -->
   <footer>
     <div class="foot-top">
@@ -598,6 +719,7 @@
     </div>
     <p class="foot-note" data-bind="footer.note">—</p>
   </footer>
+  </div><!-- /sheet 8 -->
 
 </div>
 
@@ -888,7 +1010,21 @@ const REPORT_DATA = {
         var last = i === n - 1;
         s.appendChild(el("circle", { cx: X(i), cy: Y(v), r: last ? 4.5 : 3, fill: last ? col : C.bg || "#0C0F11", stroke: col, "stroke-width": "2" }));
         if (last) {
-          s.appendChild(el("text", { x: X(i), y: Y(v) - 12, "text-anchor": "end", fill: C.text, "font-size": "13", "font-weight": "700" }, fmt(v)));
+          // The end value sits ON the green area fill, so plain white text is
+          // unreadable. Draw it on a small dark CHIP (page-bg fill, green border)
+          // so it reads cleanly regardless of where the line ends — high on green
+          // or low on the dark base. Chip width is estimated from the digit count.
+          var label = fmt(v);
+          var fs = 13, charW = 8.2, padX = 7, padY = 4, chipH = fs + padY * 2;
+          var chipW = label.length * charW + padX * 2;
+          var cyTop = Y(v) - 14 - chipH;                 // float above the end dot
+          if (cyTop < 2) cyTop = Y(v) + 12;               // if too near the top, drop below the dot
+          var cxRight = X(i);                              // chip's right edge aligns to the last point
+          var chipX = Math.max(2, cxRight - chipW);        // keep the chip on-canvas
+          s.appendChild(el("rect", { x: chipX, y: cyTop, width: chipW, height: chipH, rx: chipH / 2,
+            fill: "#0B0F10", stroke: col, "stroke-width": "1", opacity: "0.96" }));
+          s.appendChild(el("text", { x: chipX + chipW - padX, y: cyTop + chipH - padY - 1, "text-anchor": "end",
+            fill: "#F4F6F5", "font-size": String(fs), "font-weight": "700" }, label));
         }
       });
     });
@@ -1165,7 +1301,13 @@ const REPORT_DATA = {
     if (!body) return;
     clearNode(body);
     var searchIcon = '<span class="q" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2.2"/><path d="m21 21-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>';
-    (get("visibility.topSearches") || []).forEach(function (r) {
+    // Cap the table at the top 7 queries so Step 1 fits on one printed page;
+    // any remainder rolls into a quiet "+N more searches" line. Keeps the page
+    // map tight without hiding that there's a longer tail.
+    var rows = get("visibility.topSearches") || [];
+    var CAP = 6;
+    var shown = rows.slice(0, CAP);
+    shown.forEach(function (r) {
       var tr = document.createElement("tr");
       tr.innerHTML =
         '<td class="term">' + searchIcon + '<span class="term-txt">' + r.term + '</span></td>' +
@@ -1173,6 +1315,14 @@ const REPORT_DATA = {
         '<td class="num">' + fmt(r.impressions) + '</td>';
       body.appendChild(tr);
     });
+    if (rows.length > CAP) {
+      var extra = rows.length - CAP;
+      var more = document.createElement("tr");
+      more.className = "tbl-more";
+      more.innerHTML = '<td class="term" colspan="3" style="color:var(--faint);font-size:13px;">'
+        + '+ ' + extra + ' more search' + (extra === 1 ? '' : 'es') + ' brought you fewer visitors</td>';
+      body.appendChild(more);
+    }
   }
 
   function renderGBP() {
