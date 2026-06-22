@@ -35,12 +35,14 @@ Keep each client's data in one predictable place so the data's always where Atla
 ```
 <client>/reports/
   _intake/
-    ga4/        # Google Analytics 4 exports — CSV / PDF / screenshots
-    gsc/        # Search Console exports
-    gbp/        # Business Profile insights — exports or screenshots
-    notes.md    # context that explains the numbers: campaigns, site changes, a new service, a holiday
+    manifest.yaml # this client's plan + add-ons — Atlas reads it FIRST to set scope
+    ga4/          # Google Analytics 4 exports — CSV / PDF / screenshots
+    gsc/          # Search Console exports
+    gbp/          # Business Profile insights — exports or screenshots
+    local-rank/   # Local Falcon exports — only for geo-grid / AI-visibility / competitor add-ons
+    notes.md      # context that explains the numbers: campaigns, site changes, a new service, a holiday
   2026-06/
-    report.html # the generated report for that month
+    report.html   # the generated report for that month
 ```
 
 `notes.md` matters more than it looks — "we ran a Facebook promo the last week of June" turns a confusing spike into a clear story.
@@ -59,11 +61,14 @@ The top of `report-template.html` is a single `const REPORT_DATA = { ... }` obje
 
 ## Report scope by care plan
 
+Scope is **data-driven**: the client's `_intake/manifest.yaml` declares their `plan` + `addons`, and Atlas resolves the exact section list from [`plan-modules.yaml`](plan-modules.yaml) (structure only — **no prices**; pricing lives on the STRIX care-plans page). Atlas runs only the scanners those sections need.
+
 | Plan | Report |
 |---|---|
-| **Premium Growth** ($350/mo) | The full report — GBP + GSC + GA4, all nine sections, the complete lead-leak funnel. The flagship. |
-| **Essential Care** ($175/mo) | Lighter: Search Console visibility + top searches + a short on-site summary + any health flags. No deep GBP/GA4 funnel unless access is wired up. |
+| **Premium Growth** | The full report — GBP + GSC + GA4, all nine sections, the complete lead-leak funnel, plus the AI-referral panel. The flagship. |
+| **Essential Care** | Lighter: Search Console visibility + top searches + a short on-site summary + any health flags. No deep GBP/GA4 funnel unless access is wired up. |
 | **Managed Hosting / On-Demand** | No recurring report; a one-off basic health snapshot only if asked. |
+| **Add-ons** (sold on Premium Growth) | Geo-Grid map · AI-Visibility panel · Competitor panel — each from the Local Falcon export in `_intake/local-rank/`. *(Report sections pending a Morpheus build.)* |
 
 ## Phase 2 — live API automation (a Neo build, when you want it)
 

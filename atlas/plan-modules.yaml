@@ -1,0 +1,71 @@
+# ════════════════════════════════════════════════════════════════════
+#  Atlas — Plan → Section Catalog
+#  STRUCTURE ONLY. No prices. (Atlas is price-blind by design; pricing
+#  lives on the STRIX care-plans page, never in the report engine.)
+#
+#  How Atlas uses this:
+#    1. Read the client's  _intake/manifest.yaml  → { plan, addons }
+#    2. Resolve the section list:  always  ∪  plans[plan]  ∪  addons[*]
+#    3. Run ONLY the scanners those sections need (see `source:` below),
+#       and build ONLY those sections. Never over- or under-build.
+#
+#  Keep this mirrored with the care-plans page when a plan's CONTENTS
+#  change (the care-plan review owns that). Section names map to the
+#  story arc in agents/atlas.md.
+# ════════════════════════════════════════════════════════════════════
+
+# Always present, every report (chrome + the synthesis Atlas owns):
+always:
+  - cover            # header / cover
+  - bottom_line      # "the month in one paragraph" (written last)
+  - next_steps       # what we're watching / next steps
+  - footer           # fine print
+
+# What each plan includes:
+plans:
+  on_demand: []                          # no recurring report; one-off snapshot only if asked
+  managed_hosting:
+    - health_flags                       # basic "is the site healthy" snapshot
+  essential_care:
+    - search_visibility                  # GSC: impressions / clicks / position
+    - top_searches                       # GSC: the phrases people typed
+    - onsite_summary                     # GA4: short "what people did"
+    - health_flags                       # GSC: coverage / mobile issues (flag only)
+  premium_growth:
+    - big_numbers                        # GBP + GSC + GA4 headline numbers
+    - found_you                          # GBP: how people found you on Google
+    - search_visibility                  # GSC: visibility trend + position
+    - top_searches                       # GSC: top queries
+    - onsite_activity                    # GA4: full "what people did"
+    - funnel                             # the lead-leak funnel (GBP -> GA4)
+    - whats_working                      # the wins
+    - ai_referral                        # GA4: visits from AI assistants (free; every Premium report)
+
+# Add-ons attach to a plan and add their section(s). Sold on Premium Growth.
+# NOTE: the report sections + REPORT_DATA fields for these are a PENDING
+# Morpheus build — catalogued here, but they don't render until the template
+# has them (and the Local Falcon scanner brief is added to agents/atlas.md).
+addons:
+  geo_grid:
+    - geo_grid_map                       # Local Falcon: per-point local-pack ranks + grid summary
+  ai_visibility:
+    - ai_visibility_panel                # Local Falcon: "Share of AI Voice" across AI engines
+  competitor:
+    - competitor_panel                   # Local Falcon: competitors' rank/presence per point
+
+# Which scanner feeds each section. Atlas spawns a scanner ONLY if an active
+# section needs it. (Sections not listed here = synthesis, no scanner.)
+source:
+  health_flags:        gsc
+  search_visibility:   gsc
+  top_searches:        gsc
+  onsite_summary:      ga4
+  onsite_activity:     ga4
+  ai_referral:         ga4
+  found_you:           gbp
+  big_numbers:         [gbp, gsc, ga4]
+  funnel:              [gbp, ga4]
+  geo_grid_map:        local_rank
+  ai_visibility_panel: local_rank
+  competitor_panel:    local_rank
+  # cover, bottom_line, whats_working, next_steps, footer -> synthesis (no scanner)

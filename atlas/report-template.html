@@ -232,6 +232,60 @@
   .mini .m-lab { font-size: 11.5px; color: var(--faint); margin-top: 3px; line-height: 1.35; }
   .mini .star { color: var(--accent); }
 
+  /* ===================== LOCAL RANKINGS (GEO-GRID) =====================
+     A Local Falcon geo-grid scan, rendered as a hand-built inline-SVG heatmap
+     (NOT a real map — no tiles). The summary tiles lead with plain language and
+     keep the Local Falcon acronym (ARP/ATRP/SOLV) as a small secondary label,
+     per Atlas's no-jargon voice. */
+  .geo-params {
+    display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+    font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.6px;
+    color: var(--faint); margin-bottom: 16px;
+  }
+  .geo-params .gp { color: var(--text-soft); }
+  .geo-params .sep { color: var(--accent-deep); opacity: 0.7; }
+
+  .geo-grid-wrap { display: grid; grid-template-columns: 1fr; gap: var(--s4); }
+  @media (min-width: 760px) { .geo-grid-wrap.split { grid-template-columns: 1fr 0.92fr; align-items: center; } }
+  /* The heatmap SVG mounts at its natural ~460px width; center it in whatever
+     column width it gets so it never floats against the left edge with a gutter. */
+  #chart-geo-grid { display: flex; justify-content: center; }
+  #chart-geo-grid svg.chart { max-width: 460px; }
+
+  /* The 3 summary tiles (ARP / ATRP / SOLV). Plain label big, acronym small. */
+  .geo-stats { display: grid; grid-template-columns: 1fr; gap: var(--s3); align-content: start; }
+  @media (min-width: 440px) { .geo-stats { grid-template-columns: 1fr 1fr 1fr; } }
+  @media (min-width: 760px) { .geo-stats { grid-template-columns: 1fr; } }
+  .geo-stat {
+    background: var(--surface-2); border: 1px solid var(--hairline); border-radius: var(--r-md);
+    padding: 14px 16px; display: flex; flex-direction: column; gap: 3px;
+  }
+  .geo-stat .gs-label { font-size: 13px; color: var(--text-soft); font-weight: 600; line-height: 1.3; }
+  .geo-stat .gs-acro { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--faint); }
+  .geo-stat .gs-row { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
+  .geo-stat .gs-value { font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -0.8px; line-height: 1; }
+  .geo-stat .gs-unit { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .geo-stat.is-good { border-color: var(--accent-line); background: linear-gradient(180deg, var(--accent-soft), var(--surface-2)); }
+
+  /* ===================== STUB ADD-ON PANELS (coming soon) =====================
+     Lightweight titled placeholders for the two sibling Local Falcon add-ons that
+     land later: AI Visibility (SAIV) and Competitor grids. Clearly marked, on-brand,
+     and hidden entirely unless their REPORT_DATA `enabled` flag is true. */
+  .stub {
+    border: 1px dashed var(--hairline-2); border-radius: var(--r-lg);
+    background: linear-gradient(180deg, rgba(255,255,255,0.015), transparent);
+    padding: clamp(18px, 3.2vw, 26px);
+  }
+  .stub .stub-tag {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--faint); border: 1px solid var(--hairline-2); border-radius: var(--r-pill);
+    padding: 4px 11px; margin-bottom: 12px;
+  }
+  .stub .stub-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); }
+  .stub .stub-title { font-size: 16px; font-weight: 700; color: var(--text-soft); margin-bottom: 4px; }
+  .stub .stub-sub { font-size: 13.5px; color: var(--faint); line-height: 1.5; max-width: 60ch; }
+
   /* ===================== LISTS (wins / watching) ===================== */
   .win-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
   .win-list li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: var(--text-soft); }
@@ -339,9 +393,13 @@
      break-time padding), Safari honors it → reliable top + bottom + side margins
      on every page. The footer sheet is a full-dark flex-column that pins the
      footer to the bottom (no white strip, no 100vh that Safari wouldn't fill).
-     Page map: P1 cover+bottom-line · P2 at-a-glance · P3 Step 1 · P4 Step 2a
-     (visitors trend + most-visited) · P5 Step 2b (sources donut + device) ·
-     P6 Step 3 funnel · P7 Wins + Plan · P8 footer. */
+     Page map: P1 cover+bottom-line · P2 at-a-glance · P3 Step 1 · P4 Local
+     Rankings geo-grid · P5 add-on previews (AI Visibility + Competitor stubs) ·
+     P6 Step 2a (visitors trend + most-visited) · P7 Step 2b (sources donut +
+     device) · P8 Step 3 funnel · P9 Wins + Plan · P10 footer. The two add-on
+     sheets (P4 geo-grid, P5 stubs) are skippable: each is wrapped so it renders
+     ONLY when its REPORT_DATA block is enabled (see localRank.enabled /
+     aiVisibility.enabled / competitor.enabled). */
   @page { size: Letter; margin: 0; }   /* full-bleed Letter: dark fills to the trim; no browser header/footer junk */
   @media print {
     html, body {
@@ -434,6 +492,19 @@
     #visibility .mini .m-lab { font-size: 10.5px; margin-top: 2px; }
     #visibility .mini-grid { margin-top: 9px; gap: 7px; }
 
+    /* ---- LOCAL RANKINGS (GEO-GRID) FITS ONE PAGE ----
+       The heatmap SVG is square-ish; cap its height so the grid + the 3 summary
+       tiles + the scan-params line + the plain-language caption all clear one
+       page. width:auto keeps the viewBox aspect ratio (no squashing). On print
+       the two-column split collapses so the grid gets full width and the tiles
+       sit in a tidy 3-across row beneath it (handled by the grid rule below). */
+    #local-rank .geo-grid-wrap.split { display: grid !important; grid-template-columns: 1fr !important; gap: var(--s4) !important; }
+    #local-rank .geo-stats { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: var(--s3) !important; }
+    #local-rank svg.chart { max-height: 360px; width: auto; max-width: 100%; margin-inline: auto; }
+    #local-rank .means { margin-top: 12px; padding: 10px 12px; font-size: 12.5px; line-height: 1.45; }
+    #local-rank .geo-params { margin-bottom: 12px; }
+    .stub { break-inside: avoid; page-break-inside: avoid; }
+
     /* Keep every section's eyebrow + heading + intro welded to the content that
        follows — a section label must never orphan at the foot of a page. */
     .section-head { break-inside: avoid; page-break-inside: avoid; break-after: avoid; page-break-after: avoid; }
@@ -500,7 +571,7 @@
     .no-print { display: none !important; }
     a { color: var(--text-soft) !important; }
     /* Slightly stronger borders so cards read on paper */
-    .card, .stat, .mini, .watch-list li { border-color: rgba(255,255,255,0.18) !important; }
+    .card, .stat, .mini, .watch-list li, .geo-stat { border-color: rgba(255,255,255,0.18) !important; }
   }
 </style>
 </head>
@@ -613,7 +684,70 @@
   </section>
   </div><!-- /sheet 3 -->
 
-  <!-- ===== PRINT SHEET 4 — Step 2a: visitors trend + most-visited pages ===== -->
+  <!-- ===== PRINT SHEET 4 — Local Rankings (Geo-Grid) — ADD-ON =====
+       Skippable: the whole sheet is hidden by the renderer unless
+       REPORT_DATA.localRank.enabled === true. -->
+  <div class="report-sheet" id="sheet-local-rank">
+  <!-- ============================ LOCAL RANKINGS (GEO-GRID) ============================ -->
+  <section id="local-rank" aria-labelledby="lr-title">
+    <div class="section-head">
+      <span class="eyebrow">Step 1 — Getting Found</span>
+      <h2 class="section-title" id="lr-title">Where you rank on the map, block by block</h2>
+      <p class="lead" data-bind="localRank.intro" style="margin-top:10px;">—</p>
+    </div>
+
+    <div class="card chart-card">
+      <div class="chart-title" data-bind="localRank.title">—</div>
+      <div class="chart-sub" data-bind="localRank.subtitle">—</div>
+
+      <!-- scan parameters: keyword · grid · radius · points -->
+      <div class="geo-params" id="geo-params"><!-- injected --></div>
+
+      <div class="geo-grid-wrap split">
+        <!-- the hand-built heatmap -->
+        <div id="chart-geo-grid"></div>
+        <!-- the three summary tiles (ARP / ATRP / SOLV) -->
+        <div class="geo-stats" id="geo-stats"><!-- injected --></div>
+      </div>
+
+      <div class="chart-legend" id="legend-geo"></div>
+
+      <div class="means"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z" stroke="currentColor" stroke-width="2"/><path d="M12 16v-5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-bind="localRank.caption">—</span></div>
+    </div>
+  </section>
+  </div><!-- /sheet 4 -->
+
+  <!-- ===== PRINT SHEET 5 — Add-on previews (AI Visibility + Competitor) — STUBS =====
+       Lightweight placeholders for the two sibling Local Falcon add-ons coming
+       later. Each panel is hidden unless its own `enabled` flag is true; if BOTH
+       are off, the renderer drops the whole sheet so it never prints a blank page. -->
+  <div class="report-sheet" id="sheet-addons">
+  <section id="addons" aria-labelledby="addons-title">
+    <div class="section-head">
+      <span class="eyebrow muted">Coming Soon — Add-ons</span>
+      <h2 class="section-title" id="addons-title">More ways we can track your reach</h2>
+      <p class="lead" style="margin-top:10px;">Two optional add-ons we can switch on for you. Here's a preview of what each one will show.</p>
+    </div>
+
+    <div class="two-col even">
+      <!-- AI Visibility (Local Falcon SAIV = Share of AI Voice) -->
+      <div class="stub" id="stub-ai">
+        <span class="stub-tag"><span class="dot"></span><span data-bind="aiVisibility.tag">Preview</span></span>
+        <div class="stub-title" data-bind="aiVisibility.title">—</div>
+        <div class="stub-sub" data-bind="aiVisibility.sub">—</div>
+      </div>
+
+      <!-- Competitor grid (competitors' rank per grid point) -->
+      <div class="stub" id="stub-comp">
+        <span class="stub-tag"><span class="dot"></span><span data-bind="competitor.tag">Preview</span></span>
+        <div class="stub-title" data-bind="competitor.title">—</div>
+        <div class="stub-sub" data-bind="competitor.sub">—</div>
+      </div>
+    </div>
+  </section>
+  </div><!-- /sheet 5 -->
+
+  <!-- ===== PRINT SHEET 6 — Step 2a: visitors trend + most-visited pages ===== -->
   <div class="report-sheet">
   <!-- ============================ ON-SITE ============================ -->
   <section id="on-site" aria-labelledby="site-title">
@@ -623,7 +757,7 @@
       <p class="lead" data-bind="onSite.intro" style="margin-top:10px;">—</p>
     </div>
 
-    <!-- PRINT PAGE 4: visitors trend + most-visited pages -->
+    <!-- PRINT PAGE 6: visitors trend + most-visited pages -->
     <div class="card chart-card" style="margin-bottom:16px;">
       <div class="chart-title" data-bind="onSite.visitorsTrend.title">—</div>
       <div class="chart-sub">How many people visited your website each month</div>
@@ -637,12 +771,12 @@
       <div id="chart-pages"></div>
     </div>
   </section>
-  </div><!-- /sheet 4 -->
+  </div><!-- /sheet 6 -->
 
-  <!-- ===== PRINT SHEET 5 — Step 2b: where visitors came from + phone vs computer ===== -->
+  <!-- ===== PRINT SHEET 7 — Step 2b: where visitors came from + phone vs computer ===== -->
   <div class="report-sheet">
   <section id="on-site-2" aria-label="Where visitors came from and device split">
-    <!-- PRINT PAGE 5: where visitors came from + phone vs computer -->
+    <!-- PRINT PAGE 7: where visitors came from + phone vs computer -->
     <div class="page-break two-col even" style="margin-top:0;">
       <div class="card">
         <div class="chart-title">Where your visitors came from</div>
@@ -657,9 +791,9 @@
       </div>
     </div>
   </section>
-  </div><!-- /sheet 5 -->
+  </div><!-- /sheet 7 -->
 
-  <!-- ===== PRINT SHEET 6 — Step 3: The funnel ===== -->
+  <!-- ===== PRINT SHEET 8 — Step 3: The funnel ===== -->
   <div class="report-sheet">
   <!-- ============================ FUNNEL (THE LEAK) ============================ -->
   <section id="funnel" aria-labelledby="fun-title">
@@ -676,9 +810,9 @@
       </div>
     </div>
   </section>
-  </div><!-- /sheet 6 -->
+  </div><!-- /sheet 8 -->
 
-  <!-- ===== PRINT SHEET 7 — Wins + The Plan ===== -->
+  <!-- ===== PRINT SHEET 9 — Wins + The Plan ===== -->
   <div class="report-sheet">
   <!-- ============================ WORKING GREAT ============================ -->
   <section id="working" aria-labelledby="work-title">
@@ -699,9 +833,9 @@
     </div>
     <ul class="watch-list" id="watch-list"><!-- next steps injected --></ul>
   </section>
-  </div><!-- /sheet 7 -->
+  </div><!-- /sheet 9 -->
 
-  <!-- ===== PRINT SHEET 8 — Footer (full dark page, footer pinned to bottom) ===== -->
+  <!-- ===== PRINT SHEET 10 — Footer (full dark page, footer pinned to bottom) ===== -->
   <div class="report-sheet report-sheet--footer">
   <!-- ============================ FOOTER ============================ -->
   <footer>
@@ -720,7 +854,7 @@
     </div>
     <p class="foot-note" data-bind="footer.note">—</p>
   </footer>
-  </div><!-- /sheet 8 -->
+  </div><!-- /sheet 10 -->
 
 </div>
 
@@ -790,6 +924,66 @@ const REPORT_DATA = {
       reviewsAvg:        0,     // star rating, e.g. 4.8
       reviewsNew:        0      // new reviews this month
     }
+  },
+
+  /* ---- LOCAL RANKINGS — GEO-GRID (Local Falcon add-on) -------------------
+     A Local Falcon scan measures the business's Google local-pack (map) rank
+     from a grid of points around it. The whole sheet is SKIPPABLE: set
+     enabled:false to drop it from the report entirely.
+
+     HOW ATLAS WIRES LIVE SCANNER OUTPUT:
+       • grid.size   — N (3, 5, or 7). The heatmap is data-driven from this.
+       • grid.points — a FLAT array of length N*N, row-major (top-left → bottom-
+                       right, reading left-to-right then down). Each entry is the
+                       local-pack rank at that point: a NUMBER (1,2,3,…) or null
+                       for "not found" (rendered as a red "X"). Keep it N*N long.
+       • arp/atrp/solv — the three headline metrics straight from Local Falcon.
+         The renderer shows the rank colors automatically (green ≤3, amber 4–10,
+         red 11+/not found) and marks the CENTER cell as the business location. */
+  localRank: {
+    enabled: true,                                    // false → the geo-grid sheet is not rendered
+    intro:   "One or two sentences, plain language: this is your rank on Google's map results, checked from several spots around your address.",
+    title:   "Your Google map rank around your address",
+    subtitle:"Each square is a spot near you; the number is where you rank when someone there searches",
+    scan: {                                           // the scan-params line: keyword · grid · radius · points
+      keyword:    "your main search phrase",          // e.g. "lynchburg day spa"
+      gridLabel:  "3×3 grid",                         // human label for the grid (matches grid.size)
+      radius:     "1.0 mi",                           // distance from center to the edge points
+      pointsLabel:"9 points"                          // total measured points (N*N)
+    },
+    grid: {
+      size:   3,                                      // N for an N×N grid (3 | 5 | 7)
+      points: [0,0,0, 0,0,0, 0,0,0]                   // length N*N, row-major; rank number or null = not found
+    },
+    // The three summary tiles. `plain` is the big plain-language label; `acro`
+    // is the small Local Falcon acronym beneath it; `value` is shown big.
+    arp:  { plain: "Average map rank",        acro: "ARP",  value: "0",  unit: "" },
+    atrp: { plain: "Average rank, all points",acro: "ATRP", value: "0",  unit: "" },
+    solv: { plain: "Share of top-3 spots",    acro: "SOLV", value: "0",  unit: "%" },
+    caption: "Plain-English takeaway about what these map rankings mean for the business — Atlas rewrites this per real scan."
+  },
+
+  /* ---- ADD-ON PREVIEW: AI VISIBILITY (Local Falcon SAIV) — STUB ----------
+     Placeholder for the AI Visibility add-on (SAIV = Share of AI Voice: how
+     often the business is named by AI assistants for local queries). Lands
+     later. enabled:false hides this panel; if both add-on stubs are off, the
+     whole previews sheet is dropped. */
+  aiVisibility: {
+    enabled: true,
+    tag:     "Preview · AI Visibility",
+    title:   "How often AI assistants recommend you",
+    sub:     "Coming soon: when people ask AI assistants (like ChatGPT, Gemini, and Copilot) for a local business like yours, this tracks how often you get named — your Share of AI Voice."
+  },
+
+  /* ---- ADD-ON PREVIEW: COMPETITOR GRID — STUB ---------------------------
+     Placeholder for the Competitor add-on: the same geo-grid, but showing a
+     chosen competitor's rank at each point so you can see who wins which
+     neighborhoods. Lands later. enabled:false hides this panel. */
+  competitor: {
+    enabled: true,
+    tag:     "Preview · Competitors",
+    title:   "Who's beating you, and where",
+    sub:     "Coming soon: the same map grid for a competitor you pick, side by side with yours, so you can see exactly which neighborhoods they win and where you're already ahead."
   },
 
   /* ---- ON YOUR WEBSITE (Google Analytics) ---- */
@@ -1347,6 +1541,133 @@ const REPORT_DATA = {
     });
   }
 
+  /* -------------------------------------------------- LOCAL RANK (GEO-GRID)
+     A hand-built inline-SVG heatmap of a Local Falcon scan — NOT a real map
+     (no tiles, no external anything). The grid is data-driven from
+     localRank.grid.size (N) + a flat row-major points[] of length N*N. Each
+     point's local-pack rank colors its cell: green ≤3, amber 4–10, red 11+ or
+     "not found" (null → a red X). The center cell is marked as the business. */
+  var GEO = {
+    good: "#22C55E",   // top-3 — brand green (this is the win state, so green fits the brand perfectly)
+    ok:   "#F5B544",   // 4–10 — warm amber (state color, kept muted so it doesn't fight the green system)
+    bad:  "#F87171"    // 11+ / not found — the same red the rest of the report uses for "wrong way"
+  };
+  function geoTier(rank) {
+    if (rank == null) return GEO.bad;             // not found
+    if (rank <= 3)  return GEO.good;
+    if (rank <= 10) return GEO.ok;
+    return GEO.bad;
+  }
+  // ink color that reads on each tier fill (dark ink on green/amber, white on red)
+  function geoInk(rank) { return (rank != null && rank <= 10) ? "#06120B" : "#3A0E0E"; }
+
+  function drawGeoGrid(mountId, n, points, opts) {
+    var mount = document.getElementById(mountId);
+    if (!mount) return;
+    clearNode(mount);
+    opts = opts || {};
+    n = Math.max(1, n | 0);
+    // Square canvas. Cell pitch shrinks as N grows so 3×3 reads big and 7×7
+    // still fits one page. gap scales down a touch with N to keep cells roomy.
+    var W = 460, H = 460;
+    var pad = 6;
+    var gap = n >= 7 ? 7 : (n >= 5 ? 9 : 12);
+    var avail = W - pad * 2;
+    var cell = (avail - gap * (n - 1)) / n;
+    var rad = Math.max(6, Math.min(14, cell * 0.16));
+    var fs = Math.max(12, Math.min(30, cell * 0.34));        // rank number size scales with the cell
+    var center = (n % 2 === 1) ? ((n - 1) / 2) : -1;          // center index exists only for odd N
+
+    var s = svg(W, H);
+    for (var r = 0; r < n; r++) {
+      for (var c = 0; c < n; c++) {
+        var idx = r * n + c;
+        var rank = points[idx];
+        var hasRank = (rank != null && rank !== "");
+        var x = pad + c * (cell + gap);
+        var y = pad + r * (cell + gap);
+        var fill = geoTier(hasRank ? rank : null);
+        // soften the fill a touch; the rank text carries the contrast
+        s.appendChild(el("rect", { x: x, y: y, width: cell, height: cell, rx: rad,
+          fill: fill, opacity: "0.92", stroke: "#0C0F11", "stroke-width": "2" }));
+        var midX = x + cell / 2, midY = y + cell / 2;
+        if (hasRank) {
+          s.appendChild(el("text", { x: midX, y: midY + fs * 0.34, "text-anchor": "middle",
+            fill: geoInk(rank), "font-size": String(fs), "font-weight": "800" }, String(rank)));
+        } else {
+          // "not found" → a clean X in the cell
+          var xg = el("g", { stroke: "#FBE3E3", "stroke-width": String(Math.max(2.5, cell * 0.05)), "stroke-linecap": "round" });
+          var d = cell * 0.2;
+          xg.appendChild(el("line", { x1: midX - d, y1: midY - d, x2: midX + d, y2: midY + d }));
+          xg.appendChild(el("line", { x1: midX + d, y1: midY - d, x2: midX - d, y2: midY + d }));
+          s.appendChild(xg);
+        }
+        // mark the center cell as the business location (owl-green ring + tiny pin dot)
+        if (r === center && c === center) {
+          var rr = cell * 0.5 - 3;
+          s.appendChild(el("circle", { cx: midX, cy: midY, r: rr,
+            fill: "none", stroke: "#0C0F11", "stroke-width": "5" }));
+          s.appendChild(el("circle", { cx: midX, cy: midY, r: rr,
+            fill: "none", stroke: C.text, "stroke-width": "2", "stroke-dasharray": "4 4", opacity: "0.85" }));
+        }
+      }
+    }
+    var summary = points.map(function (p) { return p == null ? "not found" : ("rank " + p); }).join(", ");
+    s.setAttribute("aria-label", (opts.title || "Map rank grid") + " (" + n + " by " + n + "): " + summary + ".");
+    mount.appendChild(s);
+
+    // legend (matches .chart-legend) — placed by the caller's #legend-geo
+    if (opts.legendId) {
+      var lg = document.getElementById(opts.legendId);
+      if (lg) {
+        clearNode(lg);
+        [{ c: GEO.good, t: "Top 3 — you're winning here" },
+         { c: GEO.ok,   t: "4–10 — on the radar" },
+         { c: GEO.bad,  t: "11+ or not shown" }].forEach(function (item) {
+          var li = document.createElement("span"); li.className = "li";
+          li.innerHTML = '<span class="sw" style="background:' + item.c + '"></span>' + item.t;
+          lg.appendChild(li);
+        });
+        var you = document.createElement("span"); you.className = "li";
+        you.innerHTML = '<span class="sw" style="background:transparent;border:1.5px dashed ' + C.text + ';border-radius:50%"></span>Your location (center)';
+        lg.appendChild(you);
+      }
+    }
+  }
+
+  function renderGeoParams() {
+    var box = document.getElementById("geo-params");
+    if (!box) return;
+    var sc = get("localRank.scan") || {};
+    clearNode(box);
+    var parts = [sc.keyword, sc.gridLabel, sc.radius, sc.pointsLabel].filter(Boolean);
+    parts.forEach(function (p, i) {
+      if (i > 0) { var sep = document.createElement("span"); sep.className = "sep"; sep.textContent = "·"; box.appendChild(sep); }
+      var span = document.createElement("span"); span.className = "gp"; span.textContent = p; box.appendChild(span);
+    });
+  }
+
+  function renderGeoStats() {
+    var box = document.getElementById("geo-stats");
+    if (!box) return;
+    var lr = get("localRank") || {};
+    clearNode(box);
+    [lr.arp, lr.atrp, lr.solv].forEach(function (t) {
+      if (!t) return;
+      var d = document.createElement("div");
+      // flag ARP as "good" (green-tinted) when the average rank lands in the top 3
+      var arpNum = parseFloat(t.value);
+      var good = (t.acro === "ARP" && !isNaN(arpNum) && arpNum <= 3);
+      d.className = "geo-stat" + (good ? " is-good" : "");
+      d.innerHTML =
+        '<div class="gs-label">' + (t.plain || "") + '</div>' +
+        '<div class="gs-acro">' + (t.acro || "") + '</div>' +
+        '<div class="gs-row"><span class="gs-value">' + (t.value != null ? t.value : "—") + '</span>' +
+        (t.unit ? '<span class="gs-unit">' + t.unit + '</span>' : '') + '</div>';
+      box.appendChild(d);
+    });
+  }
+
   function renderWins() {
     var ul = document.getElementById("win-list");
     if (!ul) return;
@@ -1370,6 +1691,40 @@ const REPORT_DATA = {
     });
   }
 
+  // Show/hide a whole .report-sheet wrapper. An inline display overrides BOTH
+  // the screen rule (display:contents) and the print rule (display:block), so a
+  // disabled add-on sheet vanishes on screen AND never prints a blank page.
+  function setSheet(id, on) {
+    var sheet = document.getElementById(id);
+    if (sheet) sheet.style.display = on ? "" : "none";
+  }
+
+  /* ------------------------------------------------ LOCAL RANK ORCHESTRATION */
+  function renderLocalRank() {
+    var lr = get("localRank");
+    var on = !!(lr && lr.enabled);
+    setSheet("sheet-local-rank", on);
+    if (!on) return;
+    renderGeoParams();
+    renderGeoStats();
+    var grid = lr.grid || {};
+    drawGeoGrid("chart-geo-grid", grid.size || 3, grid.points || [],
+      { title: lr.title || "Map rank grid", legendId: "legend-geo" });
+  }
+
+  /* ----------------------------------------------- ADD-ON STUBS ORCHESTRATION */
+  function renderAddons() {
+    var ai   = get("aiVisibility") || {};
+    var comp = get("competitor")   || {};
+    var aiOn = !!ai.enabled, compOn = !!comp.enabled;
+    // hide each panel independently; drop the whole sheet if neither is on
+    var aiEl = document.getElementById("stub-ai");
+    var compEl = document.getElementById("stub-comp");
+    if (aiEl) aiEl.style.display = aiOn ? "" : "none";
+    if (compEl) compEl.style.display = compOn ? "" : "none";
+    setSheet("sheet-addons", aiOn || compOn);
+  }
+
   /* ----------------------------------------------------------------- BOOT */
   function render() {
     document.title = "STRIX — " + (get("client.name") || "Report") + " — " + (get("period.label") || "");
@@ -1377,6 +1732,8 @@ const REPORT_DATA = {
     renderStats();
     renderSearches();
     renderGBP();
+    renderLocalRank();
+    renderAddons();
     renderWins();
     renderWatching();
 

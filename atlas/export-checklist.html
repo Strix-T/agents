@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Atlas — Monthly Report Checklist</title>
+<style>
+  :root{
+    --green:#16a34a; --green2:#22c55e; --emerald:#10b981;
+    --ink:#0f172a; --muted:#475569; --faint:#64748b;
+    --line:#e2e8f0; --bg:#ffffff; --soft:#f8fafc;
+    --amber-bg:#fffbeb; --amber-line:#fde68a; --amber-ink:#92400e;
+    --green-bg:#f0fdf4; --green-line:#bbf7d0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;line-height:1.5;}
+  .sheet{width:8.5in;min-height:11in;margin:0 auto;padding:0.6in 0.62in 0.5in;background:var(--bg);}
+  .eyebrow{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--green);font-weight:700;}
+  header.head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--green);padding-bottom:10px;margin-bottom:14px;}
+  h1{font-size:25px;margin:4px 0 3px;letter-spacing:-.02em;font-weight:800;}
+  .sub{color:var(--muted);font-size:12.5px;margin:0;}
+  .sub code{background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:11px;}
+  .wordmark{font-weight:800;font-size:24px;letter-spacing:-.02em;}
+  .wordmark .ix{color:var(--green);}
+  /* golden rules */
+  .rules{background:var(--green-bg);border:1px solid var(--green-line);border-radius:10px;padding:11px 16px 11px 18px;margin:0 0 12px;}
+  .rules .eyebrow{margin-bottom:5px;display:block;}
+  .rules ol{margin:0;padding-left:18px;}
+  .rules li{margin:2px 0;color:var(--ink);}
+  .rules b{font-weight:700;}
+  /* legend */
+  .legend{font-size:11px;color:var(--faint);margin:0 0 14px;}
+  .star{color:var(--green2);}
+  .pill{display:inline-block;background:var(--green);color:#fff;font-family:'Space Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.06em;padding:1px 6px;border-radius:999px;vertical-align:middle;text-transform:uppercase;}
+  .pill.beta{background:#b45309;}
+  .opt{color:var(--faint);font-style:italic;font-size:11px;}
+  /* sections */
+  section.box{border:1px solid var(--line);border-left:4px solid var(--green);border-radius:8px;padding:10px 14px;margin:0 0 10px;break-inside:avoid;page-break-inside:avoid;}
+  section.box.addon{border-left-color:var(--emerald);background:#f6fefb;}
+  h2{font-size:15px;margin:0 0 1px;font-weight:700;}
+  h2 .path{font-family:'Space Mono',monospace;font-size:11px;color:var(--green);font-weight:700;}
+  h2 .tag{font-weight:400;color:var(--faint);font-size:11px;}
+  .desc{color:var(--muted);font-style:italic;font-size:11.5px;margin:0 0 7px;}
+  .how{font-size:11px;color:var(--faint);margin:0 0 7px;}
+  ul.items{list-style:none;margin:0;padding:0;}
+  ul.items li{position:relative;padding:3px 0 3px 26px;font-size:12px;}
+  ul.items li:before{content:"";position:absolute;left:0;top:4px;width:13px;height:13px;border:1.5px solid #94a3b8;border-radius:3px;background:#fff;}
+  ul.items li b{font-weight:700;}
+  .callout{background:var(--amber-bg);border:1px solid var(--amber-line);border-radius:7px;padding:8px 12px;margin:8px 0 0;font-size:11px;color:var(--amber-ink);}
+  .callout b{color:var(--amber-ink);}
+  .cmd{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:11px 14px;font-family:'Space Mono',monospace;font-size:11.5px;line-height:1.5;margin:12px 0 0;}
+  .cmd .c-green{color:#4ade80;}
+  footer{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:14px;padding-top:8px;font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);}
+  @page{size:Letter;margin:0;}
+  @media print{.sheet{margin:0;}}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header class="head">
+    <div>
+      <span class="eyebrow">STRIX · Website Care</span>
+      <h1>Atlas — Monthly Report Checklist</h1>
+      <p class="sub">Set the <code>manifest</code>, export everything below into the client's <code>_intake/</code> folder, then give Atlas the command.</p>
+    </div>
+    <span class="wordmark">STR<span class="ix">IX</span></span>
+  </header>
+
+  <div class="rules">
+    <span class="eyebrow">4 Golden Rules — read first</span>
+    <ol>
+      <li><b>Same window everywhere.</b> Set every tool to the calendar month you're reporting (e.g. June 1–30) — never "last 28 days."</li>
+      <li><b>Always Compare → previous month</b> (or grab last month too). That's what creates the up/down arrows.</li>
+      <li><b>Wait ~3 days after month-end</b> to pull — Search Console runs a couple days behind.</li>
+      <li><b>Screenshots count.</b> Anything that won't export as CSV, just screenshot — Atlas reads images.</li>
+    </ol>
+  </div>
+
+  <p class="legend"><span class="star">★</span> = essential · <span class="opt">optional</span> = nice-to-have · <span class="pill">new</span> = added this update · <span class="pill beta">beta</span> = on hold, skip for now</p>
+
+  <section class="box">
+    <h2>0. Set the manifest <span class="path">→ _intake/manifest.yaml</span> <span class="pill">new</span></h2>
+    <p class="desc">This is what tells Atlas which sections to build — do it first.</p>
+    <ul class="items">
+      <li><span class="star">★</span> <b>client</b> — the business name (e.g. "Spa 4109")</li>
+      <li><span class="star">★</span> <b>plan</b> — <code>managed_hosting</code> · <code>essential_care</code> · <code>premium_growth</code> (sets the report's scope)</li>
+      <li><span class="star">★</span> <b>addons</b> — e.g. <code>[geo_grid]</code>; leave <code>[]</code> if none. Only listed add-ons get built.</li>
+    </ul>
+    <div class="callout"><b>Scope follows the plan.</b> Premium Growth = the full report. Essential Care = lighter (GSC + a short on-site summary). Managed Hosting = no recurring report. Atlas builds <i>only</i> what the manifest turns on — so you only need to grab the data for those sections.</div>
+  </section>
+
+  <section class="box">
+    <h2>1. Google Analytics (GA4) <span class="path">→ _intake/ga4/</span></h2>
+    <p class="desc">"What people did once they reached the website."</p>
+    <p class="how">Open each report → set the month + turn on <b>Compare (previous month)</b> → <b>Share/Export → Download CSV</b>.</p>
+    <ul class="items">
+      <li><span class="star">★</span> <b>Reports snapshot / Overview</b> — visitors, new visitors, sessions, engagement</li>
+      <li><span class="star">★</span> <b>Acquisition → Traffic acquisition</b> — where visitors came from</li>
+      <li><span class="star">★</span> <b>Engagement → Pages and screens</b> — which pages they viewed</li>
+      <li><span class="star">★</span> <b>Tech → Tech details</b> — set the dropdown to <b>Device category</b> (phone/computer/tablet), not "Browser"</li>
+      <li><span class="star">★</span> <b>Engagement → Events (Key events)</b> — bookings, calls, form fills</li>
+      <li><span class="star">★</span> <b>Visitors over time — last 6 months</b> — export one report with the range set to the last 6 months, so the trend is real data <span class="opt">(your other GA4 exports stay on the report month + compare)</span></li>
+      <li><span class="opt">optional</span> <b>Engagement → Landing page</b> — where people enter the site</li>
+    </ul>
+  </section>
+
+  <section class="box">
+    <h2>2. Search Console (GSC) <span class="path">→ _intake/gsc/</span></h2>
+    <p class="desc">"What people typed into Google, and whether you showed up."</p>
+    <ul class="items">
+      <li><span class="star">★</span> <b>Performance → Search results.</b> Toggle ON all four: <b>Clicks, Impressions, CTR, Average position</b>. Set range to <b>Last 6 months</b>, then <b>Export → CSV</b> (a ZIP with Queries, Pages, Dates). Drop the whole thing in.</li>
+      <li><span class="opt">optional</span> <b>Page indexing</b> — export if you want Atlas to flag pages Google is skipping.</li>
+    </ul>
+  </section>
+
+  <section class="box">
+    <h2>3. Google Business Profile (GBP) <span class="path">→ _intake/gbp/</span> <span class="tag">[screenshots]</span></h2>
+    <p class="desc">"How people find you on Google itself."</p>
+    <p class="how">business.google.com → the location → <b>Performance</b> → set the month. Screenshot each — and repeat for last month so Atlas can show the change:</p>
+    <ul class="items">
+      <li><span class="star">★</span> <b>Overview</b> — total Business Profile interactions</li>
+      <li><span class="star">★</span> <b>Calls</b> tab — the number</li>
+      <li><span class="star">★</span> <b>Bookings</b> tab — the number <span class="opt">← key conversion</span></li>
+      <li><span class="star">★</span> <b>Directions</b> tab — the number</li>
+      <li><span class="star">★</span> <b>Website clicks</b> tab — the number</li>
+      <li><span class="star">★</span> <b>Views &amp; Searches</b> — "people viewed your profile" + "searches showed your profile" (with top search terms)</li>
+      <li><span class="star">★</span> <b>Reviews</b> — total count, star rating, and screenshot recent reviews newest-first</li>
+    </ul>
+    <div class="callout"><b>Why every tab matters:</b> the Overview only shows the combined total. Atlas needs Calls / Bookings / Directions / Website clicks broken out — that's the real "people are contacting you" story (on Spa 4109 it was 1,309 interactions the Overview alone hid).</div>
+  </section>
+
+  <section class="box">
+    <h2>4. Booking system / POS <span class="path">→ _intake/booking.md</span></h2>
+    <p class="desc">Bookings finish on the booking platform (Vagaro, Square, Mangomint, GlossGenius…), not the website — so GA4 can't see them. Add the real number (a screenshot or one line is fine):</p>
+    <ul class="items">
+      <li><span class="star">★</span> <b># of online bookings this month</b> (and last month)</li>
+      <li><span class="opt">optional</span> revenue and/or total appointments, if easy to see</li>
+      <li><span class="opt">optional</span> where bookings came from, if the platform shows it</li>
+    </ul>
+    <div class="callout"><b>This closes the funnel honestly.</b> Without it, "bookings" looks near-zero when it isn't — exactly what tripped up the first Spa 4109 draft.</div>
+  </section>
+
+  <section class="box">
+    <h2>5. Month context <span class="path">→ _intake/notes.md</span></h2>
+    <p class="desc">60 seconds here turns flat numbers into a story. Jot anything that happened:</p>
+    <ul class="items">
+      <li>Promotions or ads run? · New pages or services? · Website changes?</li>
+      <li>Closures / holidays / seasonality? · Customer complaints? · What does the owner most want to know?</li>
+    </ul>
+  </section>
+
+  <section class="box addon">
+    <h2>6. Geo-Grid local rank <span class="path">→ _intake/local-rank/</span> <span class="pill">new</span></h2>
+    <p class="desc">Add-on only — grab this <b>only if the manifest lists <code>geo_grid</code></b>. Skip it otherwise.</p>
+    <p class="how">In Local Falcon: run the scan for the client's keyword (e.g. "lynchburg day spa"), then on the Scan Report use <b>Export</b> and grab all of it:</p>
+    <ul class="items">
+      <li><span class="star">★</span> the <b>scan-report CSV</b> (the ranked business list + ARP / ATRP / SoLV)</li>
+      <li><span class="star">★</span> the <b>data-points CSV</b> (the per-grid-point ranks — this draws the heatmap)</li>
+      <li><span class="opt">optional</span> the <b>map-image / scan PDF</b> (handy visual reference)</li>
+    </ul>
+    <div class="callout"><b>AI Visibility (SAIV) — <span class="pill beta">beta</span>, on hold.</b> The ChatGPT / AI-Overviews scans are slow and unreliable right now (scans stuck "in progress" for hours in testing). <b>Don't grab these for monthly reports yet.</b> Geo-grid (the Google scan) is fast and reliable — that's the one to use.</div>
+  </section>
+
+  <section class="box">
+    <h2>7. One-time setup <span class="tag">(do once per client)</span></h2>
+    <ul class="items">
+      <li><span class="star">★</span> Confirm GA4 marks <b>bookings / calls / form-submits as Key events</b> — if not, have Neo wire it up (without it, the funnel's bottom is empty).</li>
+      <li>Tell Atlas the site's main actions (book online, call, contact form, gift cards).</li>
+      <li>Note which <b>booking platform</b> the client uses.</li>
+      <li>Make sure you have access to all three: GA4, Search Console, Business Profile.</li>
+    </ul>
+  </section>
+
+  <div class="cmd">
+    Then run:&nbsp; <span class="c-green">"Atlas, build [Month]'s report for [client] — exports are in [folder path]."</span><br>
+    Atlas reads the plan + add-ons from <span class="c-green">manifest.yaml</span>, so you don't need to state the tier.
+  </div>
+
+  <footer>
+    <span>STRIX · Website Care Plans</span>
+    <span>strixstudio.com · contact@strixstudio.com</span>
+  </footer>
+
+</div>
+</body>
+</html>
