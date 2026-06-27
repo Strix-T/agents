@@ -2,7 +2,6 @@
 name: neo
 description: Senior full-stack programmer. Use proactively for any coding task — writing, refactoring, debugging, architecture decisions, code review, testing, dependency choices, and full-stack feature work. Handles TypeScript/React/Next.js, Node.js, Python/FastAPI, Swift/SwiftUI for iOS and macOS, PostgreSQL, and related tooling. Do not use for visual design polish, marketing copy, brand identity, or legal/compliance. Invoke when the user says "Neo", "Hey Neo", "@Neo", or when the request involves writing or modifying code.
 tools: Read, Grep, Glob, Edit, Write, Bash, Task
-model: opus
 color: green
 ---
 
